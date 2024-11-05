@@ -1,6 +1,5 @@
 package org.example.cornchat_be.domain.user.service;
 
-import org.example.cornchat_be.apiPayload.util.PasswordUtil;
 import org.example.cornchat_be.domain.user.converter.UserConverter;
 import org.example.cornchat_be.domain.user.dto.UserRequestDto;
 import org.example.cornchat_be.domain.user.entity.User;
