@@ -2,6 +2,7 @@ package org.example.cornchat_be.apiPayload.code.status;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.example.cornchat_be.apiPayload.code.dto.ErrorDto;
 import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
@@ -18,4 +19,12 @@ public enum ErrorStatus {
     private final String code;
     private final String message;
 
+    public ErrorDto convertErrorDto(){
+        return ErrorDto.builder()
+                .status(httpStatus)
+                .errorCode(code)
+                .message(message)
+                .isSuccess(false)
+                .build();
+    }
 }

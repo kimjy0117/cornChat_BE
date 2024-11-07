@@ -6,15 +6,17 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-@AllArgsConstructor
+@Builder
 public class ErrorDto {
     private final Boolean isSuccess;
     private final String message;
-    private final int status;
+    private final String errorCode;
+    private final HttpStatus status;
 
-    public ErrorDto(String message, HttpStatus status) {
+    public ErrorDto(String message, String errorCode, HttpStatus status) {
+        this.errorCode = errorCode;
         this.isSuccess = false;
         this.message = message;
-        this.status = status.value();
+        this.status = status;
     }
 }
