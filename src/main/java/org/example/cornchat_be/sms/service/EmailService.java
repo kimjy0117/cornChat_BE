@@ -12,9 +12,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
 import java.util.Random;
 
 @Service
@@ -83,7 +80,6 @@ public class EmailService {
     // 코드 검증 메소드
     public Boolean verifyEmailCode(String email, String code){
         String codeFoundByEmail = redisUtil.getData(email);
-        System.out.println("redis에 저장된 code: " + codeFoundByEmail);
         if (codeFoundByEmail == null) {
             return false;
         }

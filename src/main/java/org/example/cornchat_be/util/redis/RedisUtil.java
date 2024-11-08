@@ -1,4 +1,4 @@
-package org.example.cornchat_be.util;
+package org.example.cornchat_be.util.redis;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -23,8 +23,14 @@ public class RedisUtil {
         return Boolean.TRUE.equals(template.hasKey(key));
     }
 
+    //데이터 생성
+    public void setData(String key, String value) {
+        ValueOperations<String, String> valueOperations = template.opsForValue();
+        valueOperations.set(key, value);
+    }
+
     //데이터 생성 및 파기시간
-    public void setDataExpire(String key, String value, long duration){
+    public void setData(String key, String value, long duration){
         ValueOperations<String, String> valueOperations = template.opsForValue();
         Duration expireDuration = Duration.ofSeconds(duration);
         valueOperations.set(key, value, expireDuration);

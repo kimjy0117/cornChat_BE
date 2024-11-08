@@ -8,17 +8,19 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/email")
+@RequestMapping("/api/email")
 public class EmailController {
     private final EmailService emailService;
 
-    @GetMapping("/{email_addr}/authcode")
+    //인증번호 발송
+    @GetMapping("/authcode/{email_addr}")
     public ResponseEntity<String> sendEmailPath(@PathVariable String email_addr) throws MessagingException{
         emailService.sendEmail(email_addr);
         return ResponseEntity.ok("이메일을 확인하세요.");
     }
 
-    @PostMapping("/{email_addr}/authcode")
+    //인증번호 검증
+    @PostMapping("/authcode/{email_addr}")
     public ResponseEntity<String> sendEmailAndCode(@PathVariable String email_addr, @RequestParam("code") String code){
         if (emailService.verifyEmailCode(email_addr, code)){
             return ResponseEntity.ok("이메일 인증 성공");
