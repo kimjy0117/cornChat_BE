@@ -13,7 +13,11 @@ public enum ErrorStatus {
     _BAD_REQUEST(HttpStatus.BAD_REQUEST,"COMMON400","잘못된 요청입니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED,"COMMON401","인증이 필요합니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
-    _CONFLICT(HttpStatus.CONFLICT,"COMMON409","잘못된 입력입니다.");
+    _CONFLICT(HttpStatus.CONFLICT,"COMMON409","잘못된 입력입니다."),
+
+    // password 에러
+    _ALREADY_PASSWORD_SAME(HttpStatus.BAD_REQUEST, "PASSWORD4001", "기존 비밀번호와 동일합니다.")
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;
