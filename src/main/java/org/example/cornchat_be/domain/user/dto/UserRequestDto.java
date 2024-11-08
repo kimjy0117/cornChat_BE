@@ -1,5 +1,6 @@
 package org.example.cornchat_be.domain.user.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 
 public class UserRequestDto {
@@ -9,6 +10,22 @@ public class UserRequestDto {
         String email;
         String phoneNum;
         String userId;
+        String password;
+    }
+
+    @Getter
+    public static class EmailDto{
+        String email;
+    }
+
+    @Getter
+    public static class UserIdDto{
+        String userId;
+    }
+
+    @Getter
+    public static class FindPwDto{
+        String email;
         String password;
     }
 
