@@ -11,21 +11,21 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/user")
-public class UserController {
+public class UserController implements UserControllerDocs {
     private final UserService userService;
 
     //이메일 중복검사
     @PostMapping("/checkEmail")
     public ResponseEntity<?> checkEmail(@RequestBody UserRequestDto.EmailDto email){
-        Boolean exists = userService.checkEmail(email);
-        return ResponseEntity.ok(SuccessStatus._POST_OK.convertSuccessDto(exists));
+        userService.checkEmail(email);
+        return ResponseEntity.ok(SuccessStatus._POST_OK.convertSuccessDto());
     }
 
     //아이디 중복검사
     @PostMapping("/checkUserId")
     public ResponseEntity<?> checkUserId(@RequestBody UserRequestDto.UserIdDto userId){
-        Boolean exists = userService.checkUserId(userId);
-        return ResponseEntity.ok(SuccessStatus._POST_OK.convertSuccessDto(exists));
+        userService.checkUserId(userId);
+        return ResponseEntity.ok(SuccessStatus._POST_OK.convertSuccessDto());
     }
 
     //회원가입

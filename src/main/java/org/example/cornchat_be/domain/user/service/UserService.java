@@ -18,13 +18,17 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     //이메일 중복검사
-    public Boolean checkEmail(UserRequestDto.EmailDto email){
-        return userRepository.existsByEmail(email.getEmail());
+    public void checkEmail(UserRequestDto.EmailDto email){
+        if(userRepository.existsByEmail(email.getEmail())){
+            throw new CustomException(ErrorStatus._ALREADY_EXIST_EMAIL);
+        }
     }
 
     //아이디 중복검사
-    public Boolean checkUserId(UserRequestDto.UserIdDto userId){
-        return userRepository.existsByUserId(userId.getUserId());
+    public void checkUserId(UserRequestDto.UserIdDto userId){
+        if (userRepository.existsByUserId(userId.getUserId())){
+            throw new CustomException(ErrorStatus._ALREADY_EXIST_USERID);
+        }
     }
 
     //회원가입
