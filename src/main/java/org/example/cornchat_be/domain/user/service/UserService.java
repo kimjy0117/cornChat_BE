@@ -7,6 +7,9 @@ import org.example.cornchat_be.domain.user.converter.UserConverter;
 import org.example.cornchat_be.domain.user.dto.UserRequestDto;
 import org.example.cornchat_be.domain.user.entity.User;
 import org.example.cornchat_be.domain.user.repository.UserRepository;
+import org.example.cornchat_be.util.jwt.dto.CustomUserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +19,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    
+    //현재 인증 객체(사용자 정보)를 가져옴
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 
     //이메일 중복검사
     public void checkEmail(UserRequestDto.EmailDto email){
@@ -65,5 +72,23 @@ public class UserService {
         //비밀번호 변경 로직
         updateUser.setPassword(newPassword);
         userRepository.save(updateUser);
+    }
+
+    //회원 탈퇴
+    public void deleteUser() {
+        if (authentication == null){
+            throw new SecurityException("사용자 정보를 불러올 수 없습니다.");
+        }
+        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+            // CustomUserDetails에서 사용자 정보 추출
+            String email = userDetails.getUsername(); // 사용자 이메일 가져오기
+
+            System.out.println("User email: " + email);
+
+            //이메일에 해당하는 사용자 삭제
+            userRepository.deleteByEmail(email);
+        } else {
+            throw new SecurityException("잘못된 사용자 정보입니다.");
+        }
     }
 }

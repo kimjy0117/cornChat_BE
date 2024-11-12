@@ -38,9 +38,18 @@ public class UserController implements UserControllerDocs {
     }
 
     //비밀번호 변경
-    @PutMapping("/findPw")
+    @PatchMapping("/findPw")
     public ResponseEntity<?> findPw(@RequestBody UserRequestDto.FindPwDto request){
         userService.findPw(request);
         return ResponseEntity.ok(SuccessStatus._FIND_PASSWORD_SUCCESS.convertSuccessDto());
     }
+
+    //회원 탈퇴
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser(){
+        userService.deleteUser();
+        return ResponseEntity.status(SuccessStatus._DELETE_USER_SUCCESS.getHttpStatus())
+                .body(SuccessStatus._DELETE_USER_SUCCESS.convertSuccessDto());
+    }
+
 }

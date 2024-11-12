@@ -35,4 +35,8 @@ public class UserRequestDto {
         String password;
     }
 
+    @Getter
+    public static class DeleteDto{
+        String email;
+    }
 }

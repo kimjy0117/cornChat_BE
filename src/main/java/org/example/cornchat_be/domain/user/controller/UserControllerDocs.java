@@ -39,4 +39,12 @@ public interface UserControllerDocs {
             @ApiResponse(responseCode = "409", description = "기존 비밀번호와 동일합니다.")
     })
     public ResponseEntity<?> findPw(@RequestBody UserRequestDto.FindPwDto request);
+
+
+    @Operation(summary = "회원 탈퇴", description = "회원 정보를 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "회원정보 삭제 성공"),
+            @ApiResponse(responseCode = "401", description = "잘못된 사용자 정보입니다.")
+    })
+    public ResponseEntity<?> deleteUser();
 }
