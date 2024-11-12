@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -20,8 +21,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     
-    //현재 인증 객체(사용자 정보)를 가져옴
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 
 
     //이메일 중복검사
@@ -39,6 +39,7 @@ public class UserService {
     }
 
     //회원가입
+    @Transactional
     public void joinUser(UserRequestDto.JoinDto request){
         User newUser = UserConverter.createUser(request, bCryptPasswordEncoder);
         //이메일 존재여부
@@ -58,6 +59,7 @@ public class UserService {
     }
 
     //비밀번호 변경
+    @Transactional
     public void findPw(UserRequestDto.FindPwDto request){
         //기존 유저정보 가져옴
         User updateUser = userRepository.findByEmail(request.getEmail());
@@ -75,7 +77,11 @@ public class UserService {
     }
 
     //회원 탈퇴
+    @Transactional
     public void deleteUser() {
+        //현재 인증 객체(사용자 정보)를 가져옴
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication == null){
             throw new SecurityException("사용자 정보를 불러올 수 없습니다.");
         }
