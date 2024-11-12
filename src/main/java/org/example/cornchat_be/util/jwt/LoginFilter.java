@@ -1,11 +1,11 @@
-package org.example.cornchat_be.jwt;
+package org.example.cornchat_be.util.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.cornchat_be.jwt.entity.RefreshEntity;
-import org.example.cornchat_be.jwt.repository.RefreshRepository;
+import org.example.cornchat_be.util.jwt.entity.RefreshEntity;
+import org.example.cornchat_be.util.jwt.repository.RefreshRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,9 +30,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.refreshRepository = refreshRepository;
 
         // 여기에서 로그인 처리할 URL 설정
-        setFilterProcessesUrl("/login"); // 이 URL로 POST 요청이 들어오면 필터가 동작
+        setFilterProcessesUrl("/api/login"); // 이 URL로 POST 요청이 들어오면 필터가 동작
     }
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
@@ -76,7 +75,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         addRefreshEntity(email, refresh, 86400000L);
 
         //응답 설정
-        response.setHeader("access", access);
+        response.setHeader("Authorization", access);
         response.addCookie(createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
     }
@@ -84,7 +83,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 실패시 실행하는 메소드
     @Override
     protected  void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
-        response.setStatus(401);
+        throw new SecurityException("로그인에 실패하였습니다.");
+//        response.setStatus(401);
     }
 
     private void addRefreshEntity(String email, String refresh, Long expiredMs) {

@@ -1,6 +1,10 @@
-package org.example.cornchat_be.jwt;
+package org.example.cornchat_be.util.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
+import org.example.cornchat_be.apiPayload.code.status.ErrorStatus;
+import org.example.cornchat_be.apiPayload.exception.CustomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +16,7 @@ import java.util.Date;
 @Component
 public class JWTUtil {
 
-    private SecretKey secretKey;
+    private final SecretKey secretKey;
 
     public JWTUtil(@Value("${spring.jwt.secret}")String secret){
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());

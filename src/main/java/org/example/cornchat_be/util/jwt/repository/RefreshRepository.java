@@ -1,6 +1,6 @@
-package org.example.cornchat_be.jwt.repository;
+package org.example.cornchat_be.util.jwt.repository;
 
-import org.example.cornchat_be.jwt.entity.RefreshEntity;
+import org.example.cornchat_be.util.jwt.entity.RefreshEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 

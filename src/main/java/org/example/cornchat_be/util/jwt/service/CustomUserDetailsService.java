@@ -1,8 +1,8 @@
-package org.example.cornchat_be.jwt.service;
+package org.example.cornchat_be.util.jwt.service;
 
 import org.example.cornchat_be.domain.user.entity.User;
 import org.example.cornchat_be.domain.user.repository.UserRepository;
-import org.example.cornchat_be.jwt.dto.CustomUserDetails;
+import org.example.cornchat_be.util.jwt.dto.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

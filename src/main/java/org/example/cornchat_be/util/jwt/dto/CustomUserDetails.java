@@ -1,4 +1,4 @@
-package org.example.cornchat_be.jwt.dto;
+package org.example.cornchat_be.util.jwt.dto;
 
 import org.example.cornchat_be.domain.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;

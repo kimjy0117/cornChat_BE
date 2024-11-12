@@ -1,13 +1,13 @@
-package org.example.cornchat_be.jwt.service;
+package org.example.cornchat_be.util.jwt.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.cornchat_be.jwt.JWTUtil;
-import org.example.cornchat_be.jwt.entity.RefreshEntity;
-import org.example.cornchat_be.jwt.repository.RefreshRepository;
+import org.example.cornchat_be.util.jwt.JWTUtil;
+import org.example.cornchat_be.util.jwt.entity.RefreshEntity;
+import org.example.cornchat_be.util.jwt.repository.RefreshRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

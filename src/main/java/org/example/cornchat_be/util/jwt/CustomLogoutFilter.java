@@ -1,4 +1,4 @@
-package org.example.cornchat_be.jwt;
+package org.example.cornchat_be.util.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -8,7 +8,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.cornchat_be.jwt.repository.RefreshRepository;
+import org.example.cornchat_be.util.jwt.repository.RefreshRepository;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         String requestUri = request.getRequestURI();
 
         //logout이 아니라면 다음 필터로 넘어감
-        if (!requestUri.matches("^\\/logout$")) {
+        if (!requestUri.matches("^\\/api\\/logout$")) {
 
             filterChain.doFilter(request, response);
             return;
