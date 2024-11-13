@@ -26,6 +26,7 @@ public class UserRequestDto {
     @Getter
     public static class FindPwDto{
         String email;
+        String code;
         String password;
     }
 

@@ -8,6 +8,7 @@ import org.example.cornchat_be.domain.user.dto.UserRequestDto;
 import org.example.cornchat_be.domain.user.entity.User;
 import org.example.cornchat_be.domain.user.repository.UserRepository;
 import org.example.cornchat_be.util.jwt.dto.CustomUserDetails;
+import org.example.cornchat_be.util.redis.RedisUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,7 +21,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    
+    private final RedisUtil redisUtil;
 
 
 
@@ -61,17 +62,27 @@ public class UserService {
     //비밀번호 변경
     @Transactional
     public void findPw(UserRequestDto.FindPwDto request){
+
+        //인증번호가 일치하는지 한번 더 확인
+        String codeFoundByEmail = redisUtil.getData(request.getEmail());
+        if (codeFoundByEmail == null) {
+            throw new NullPointerException("이메일 인증을 다시 시도해주세요.");
+        }
+
+        if (!codeFoundByEmail.equals(request.getCode())){
+            throw new CustomException(ErrorStatus._VERIFY_CODE_FAIL);
+        }
+
         //기존 유저정보 가져옴
         User updateUser = userRepository.findByEmail(request.getEmail());
-        //새 비번을 암호화
-        String newPassword = bCryptPasswordEncoder.encode(request.getPassword());
 
         //기존 비번과 새 비번이 같을 경우 에러처리
-        if(updateUser.getPassword().equals(newPassword)){
+        if(bCryptPasswordEncoder.matches(request.getPassword(), updateUser.getPassword())){
             throw new CustomException(ErrorStatus._ALREADY_EXIST_PASSWORD);
         }
 
-        //비밀번호 변경 로직
+        // 새 비번을 암호화하고 비밀번호 변경
+        String newPassword = bCryptPasswordEncoder.encode(request.getPassword());
         updateUser.setPassword(newPassword);
         userRepository.save(updateUser);
     }
