@@ -24,19 +24,14 @@ public class UserService {
     private final RedisUtil redisUtil;
 
 
-
-    //이메일 중복검사
-    public void checkEmail(UserRequestDto.EmailDto email){
-        if(userRepository.existsByEmail(email.getEmail())){
-            throw new CustomException(ErrorStatus._ALREADY_EXIST_EMAIL);
-        }
+    //전화번호 중복검사
+    public boolean checkPhoneNum(String phoneNum){
+        return userRepository.existsByPhoneNum(phoneNum);
     }
 
     //아이디 중복검사
-    public void checkUserId(UserRequestDto.UserIdDto userId){
-        if (userRepository.existsByUserId(userId.getUserId())){
-            throw new CustomException(ErrorStatus._ALREADY_EXIST_USERID);
-        }
+    public boolean checkUserId(String userId){
+        return userRepository.existsByUserId(userId);
     }
 
     //회원가입

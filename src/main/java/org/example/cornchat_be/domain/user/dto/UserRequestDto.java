@@ -19,6 +19,11 @@ public class UserRequestDto {
     }
 
     @Getter
+    public static class PhoneNumDto{
+        String phoneNum;
+    }
+
+    @Getter
     public static class UserIdDto{
         String userId;
     }
