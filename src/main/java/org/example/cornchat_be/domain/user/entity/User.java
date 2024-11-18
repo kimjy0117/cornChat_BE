@@ -1,14 +1,13 @@
 package org.example.cornchat_be.domain.user.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
-import org.example.cornchat_be.domain.common.BaseEntity;
+import org.example.cornchat_be.domain.friend.entity.Friend;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -29,7 +28,12 @@ public class User {
     private String userId;
     private String password;
 //    private Image profileImage;
+    private String statusMessage;
     private String role;
+
+    // 친구 관계
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Friend> friends = new ArrayList<>();
 
     @CreatedDate
     private LocalDateTime createdAt;
