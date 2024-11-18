@@ -3,6 +3,7 @@ package org.example.cornchat_be.domain.friend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.cornchat_be.domain.user.entity.User;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -27,6 +28,6 @@ public class Friend {
     @JoinColumn(name = "friend_id")
     private User friend;
 
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime joinedAt;
 }
