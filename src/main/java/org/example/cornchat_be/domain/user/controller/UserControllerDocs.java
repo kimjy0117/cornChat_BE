@@ -52,4 +52,32 @@ public interface UserControllerDocs {
             @ApiResponse(responseCode = "401", description = "잘못된 사용자 정보입니다.")
     })
     public ResponseEntity<?> deleteUser();
+
+
+    @Operation(summary = "회원 정보 조회", description = "회원 정보를 가져옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원정보 조회 성공"),
+            @ApiResponse(responseCode = "401", description = "잘못된 사용자 정보입니다."),
+            @ApiResponse(responseCode = "500", description = "서버에러"),
+    })
+    public ResponseEntity<?> getUserProfile();
+
+
+    @Operation(summary = "사용자 이름 수정", description = "사용자 이름을 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "사용자 이름 수정 성공"),
+            @ApiResponse(responseCode = "401", description = "잘못된 사용자 정보입니다."),
+            @ApiResponse(responseCode = "409", description = "기존과 같은 이름입니다."),
+            @ApiResponse(responseCode = "500", description = "서버에러"),
+    })
+    public ResponseEntity<?> setUserName(@RequestParam String userName);
+
+    @Operation(summary = "상태메시지 수정", description = "상태메시지를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "상태메시지 수정 성공"),
+            @ApiResponse(responseCode = "401", description = "잘못된 사용자 정보입니다."),
+            @ApiResponse(responseCode = "409", description = "기존과 같은 내용입니다."),
+            @ApiResponse(responseCode = "500", description = "서버에러"),
+    })
+    public ResponseEntity<?> setStatusMessage(@RequestParam String statusMessage);
 }

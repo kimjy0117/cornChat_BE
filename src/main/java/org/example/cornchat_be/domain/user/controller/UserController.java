@@ -63,4 +63,26 @@ public class UserController implements UserControllerDocs {
                 .body(SuccessStatus._DELETE_USER_SUCCESS.convertSuccessDto());
     }
 
+    //회원 정보 조회
+    @GetMapping("/profile")
+    public ResponseEntity<?> getUserProfile(){
+        return ResponseEntity.ok(SuccessStatus._GET_OK.convertSuccessDto(userService.getUserProfile()));
+    }
+
+   //이름 변경
+    @PatchMapping("/name")
+    public ResponseEntity<?> setUserName(@RequestParam String userName){
+        userService.setUserName(userName);
+        return ResponseEntity.status(SuccessStatus._SET_USERNAME_SUCCESS.getHttpStatus())
+                .body(SuccessStatus._SET_USERNAME_SUCCESS.convertSuccessDto());
+    }
+
+
+   //상태 메시지 변경
+    @PatchMapping("/statusMessage")
+    public ResponseEntity<?> setStatusMessage(@RequestParam String statusMessage){
+        userService.setStatusMessage(statusMessage);
+        return ResponseEntity.status(SuccessStatus._SET_STATUSMESSAGE_SUCCESS.getHttpStatus())
+                .body(SuccessStatus._SET_STATUSMESSAGE_SUCCESS.convertSuccessDto());
+    }
 }

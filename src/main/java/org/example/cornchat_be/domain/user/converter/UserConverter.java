@@ -1,6 +1,7 @@
 package org.example.cornchat_be.domain.user.converter;
 
 import org.example.cornchat_be.domain.user.dto.UserRequestDto;
+import org.example.cornchat_be.domain.user.dto.UserResponseDto;
 import org.example.cornchat_be.domain.user.entity.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -15,8 +16,17 @@ public class UserConverter {
                 .phoneNum(request.getPhoneNum())
                 .userId(request.getUserId())
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))
+                .statusMessage("")
                 .role("USER")
                 .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static UserResponseDto.UserInformDto convertToUserInformDto(User user){
+        return UserResponseDto.UserInformDto.builder()
+                .userName(user.getUserName())
+                .userId(user.getUserId())
+                .statusMessage(user.getStatusMessage())
                 .build();
     }
 }

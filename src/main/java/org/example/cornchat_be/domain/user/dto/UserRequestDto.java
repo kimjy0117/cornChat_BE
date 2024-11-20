@@ -29,6 +29,16 @@ public class UserRequestDto {
     }
 
     @Getter
+    public static class UserNameDto{
+        String userName;
+    }
+
+    @Getter
+    public static class StatusMessageDto{
+        String statusMessage;
+    }
+
+    @Getter
     public static class FindPwDto{
         String email;
         String code;

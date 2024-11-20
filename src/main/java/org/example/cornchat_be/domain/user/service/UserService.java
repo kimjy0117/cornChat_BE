@@ -5,8 +5,10 @@ import org.example.cornchat_be.apiPayload.code.status.ErrorStatus;
 import org.example.cornchat_be.apiPayload.exception.CustomException;
 import org.example.cornchat_be.domain.user.converter.UserConverter;
 import org.example.cornchat_be.domain.user.dto.UserRequestDto;
+import org.example.cornchat_be.domain.user.dto.UserResponseDto;
 import org.example.cornchat_be.domain.user.entity.User;
 import org.example.cornchat_be.domain.user.repository.UserRepository;
+import org.example.cornchat_be.util.SecurityUtil;
 import org.example.cornchat_be.util.jwt.dto.CustomUserDetails;
 import org.example.cornchat_be.util.redis.RedisUtil;
 import org.springframework.security.core.Authentication;
@@ -22,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RedisUtil redisUtil;
+    private final SecurityUtil securityUtil;
 
 
     //전화번호 중복검사
@@ -69,7 +72,8 @@ public class UserService {
         }
 
         //기존 유저정보 가져옴
-        User updateUser = userRepository.findByEmail(request.getEmail());
+        User updateUser = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
 
         //기존 비번과 새 비번이 같을 경우 에러처리
         if(bCryptPasswordEncoder.matches(request.getPassword(), updateUser.getPassword())){
@@ -85,22 +89,47 @@ public class UserService {
     //회원 탈퇴
     @Transactional
     public void deleteUser() {
-        //현재 인증 객체(사용자 정보)를 가져옴
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        //현재 사용자 정보 가져오기
+        User user = securityUtil.getCurrentUser();
 
-        if (authentication == null){
-            throw new SecurityException("사용자 정보를 불러올 수 없습니다.");
-        }
-        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
-            // CustomUserDetails에서 사용자 정보 추출
-            String email = userDetails.getUsername(); // 사용자 이메일 가져오기
-
-            System.out.println("User email: " + email);
-
-            //이메일에 해당하는 사용자 삭제
-            userRepository.deleteByEmail(email);
-        } else {
-            throw new SecurityException("잘못된 사용자 정보입니다.");
-        }
+        //이메일에 해당하는 사용자 삭제
+        userRepository.deleteByEmail(user.getEmail());
     }
+
+    //회원 정보 가져오기
+    public UserResponseDto.UserInformDto getUserProfile(){
+        //현재 사용자 정보 가져오기
+        User user = securityUtil.getCurrentUser();
+
+        return UserConverter.convertToUserInformDto(user);
+    }
+
+    //유저 이름 바꾸기
+    @Transactional
+    public void setUserName(String userName){
+        //현재 사용자 정보 가져오기
+        User user = securityUtil.getCurrentUser();
+
+        if (user.getUserName().equals(userName)){
+            throw new IllegalStateException("기존 이름과 동일합니다.");
+        }
+
+        user.setUserName(userName);
+        userRepository.save(user);
+    }
+
+    //상태 메시지 바꾸기
+    @Transactional
+    public void setStatusMessage(String statusMessage){
+        //현재 사용자 정보 가져오기
+        User user = securityUtil.getCurrentUser();
+
+        if (user.getStatusMessage().equals(statusMessage)){
+            throw new IllegalStateException("기존 상태메시지와 동일합니다.");
+        }
+
+        user.setStatusMessage(statusMessage);
+        userRepository.save(user);
+    }
+
 }
