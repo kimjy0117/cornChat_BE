@@ -1,11 +1,11 @@
-package org.example.cornchat_be.config;
+package org.example.cornchat_be.util.config;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.example.cornchat_be.jwt.CustomLogoutFilter;
-import org.example.cornchat_be.jwt.JWTFilter;
-import org.example.cornchat_be.jwt.JWTUtil;
-import org.example.cornchat_be.jwt.LoginFilter;
-import org.example.cornchat_be.jwt.repository.RefreshRepository;
+import org.example.cornchat_be.util.jwt.CustomLogoutFilter;
+import org.example.cornchat_be.util.jwt.JWTFilter;
+import org.example.cornchat_be.util.jwt.JWTUtil;
+import org.example.cornchat_be.util.jwt.LoginFilter;
+import org.example.cornchat_be.util.jwt.repository.RefreshRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -61,7 +61,7 @@ public class SecurityConfig {
                             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                                 CorsConfiguration configuration = new CorsConfiguration();
 
-                                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173")); //5173번 포트 허용
                                 configuration.setAllowedMethods(Collections.singletonList("*"));
                                 configuration.setAllowCredentials(true);
                                 configuration.setAllowedHeaders(Collections.singletonList("*"));
@@ -88,11 +88,17 @@ public class SecurityConfig {
         //인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html").permitAll() // Swagger 관련 URL 허용
-                        .requestMatchers("/email/**").permitAll() // email 인증 관련 URL 허용
-                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/reissue").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui/index.html").permitAll() // Swagger 관련 URL 허용
+                        .requestMatchers("/api/login/**", "/").permitAll()
+                        .requestMatchers("/api/user/deleteUser").authenticated() // 인증 필요
+//                        .requestMatchers("/api/user/deleteUser").hasRole("USER") // 인증 필요
+                        .requestMatchers("/api/user/profile").authenticated() // 인증 필요
+                        .requestMatchers("/api/user/name").authenticated() // 인증 필요
+                        .requestMatchers("/api/user/statusMessage").authenticated() // 인증 필요
+                        .requestMatchers("/api/user/**").permitAll()
+                        .requestMatchers("/api/email/**").permitAll() // email 인증 관련 URL 허용
+                        .requestMatchers("/api/token/reissue").permitAll()
+                        .requestMatchers("/chat/**").permitAll() // WebSocket 엔드포인트 허용
                         .anyRequest().authenticated());
 
         //JWTFilter를 LoginFilter 앞에 추가하여 JWT토큰을 처리
