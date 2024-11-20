@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.example.cornchat_be.apiPayload.code.status.ErrorStatus;
 import org.example.cornchat_be.apiPayload.exception.CustomException;
 import org.example.cornchat_be.domain.friend.converter.FriendConverter;
+import org.example.cornchat_be.domain.friend.dto.FriendRequestDto;
 import org.example.cornchat_be.domain.friend.dto.FriendResponseDto;
 import org.example.cornchat_be.domain.friend.entity.Friend;
 import org.example.cornchat_be.domain.friend.repository.FriendRepository;
@@ -73,6 +74,28 @@ public class FriendService {
 
             //친구 저장
             friendRepository.save(newFriend);
+    }
+
+    //친구 이름 수정
+    public void setFriendName(FriendRequestDto.friendNameDto friendNameDto){
+        //현재 접속한 유저 정보 가져옴
+        User user = securityUtil.getCurrentUser();
+
+        //친구추가할 사용자 정보 추출
+        User friend = userRepository.findByUserId(friendNameDto.getFriendId())
+                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
+
+        //친구관계 정보 가져오기
+        Friend friendRelation = friendRepository.findByUserAndFriend(user, friend)
+                .orElseThrow(() -> new IllegalArgumentException("친구 관계가 존재하지 않습니다."));
+
+        if(friendRelation.getFriendNickname().equals(friendNameDto.getFriendName())){
+            throw new IllegalStateException("기존 이름과 동일합니다.");
+        }
+
+        //친구 닉네임 수정
+        friendRelation.setFriendNickname(friendNameDto.getFriendName());
+        friendRepository.save(friendRelation);
     }
 
     //친구 삭제

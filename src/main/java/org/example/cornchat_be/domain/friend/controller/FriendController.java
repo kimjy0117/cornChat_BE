@@ -2,6 +2,7 @@ package org.example.cornchat_be.domain.friend.controller;
 
 import lombok.AllArgsConstructor;
 import org.example.cornchat_be.apiPayload.code.status.SuccessStatus;
+import org.example.cornchat_be.domain.friend.dto.FriendRequestDto;
 import org.example.cornchat_be.domain.friend.dto.FriendResponseDto;
 import org.example.cornchat_be.domain.friend.service.FriendService;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,14 @@ public class FriendController implements FriendControllerDocs {
     public ResponseEntity<?> getFriends(){
         List<FriendResponseDto> friends = friendService.getFriends();
         return ResponseEntity.ok(SuccessStatus._FIND_FRIEND_LIST_SUCCESS.convertSuccessDto(friends));
+    }
+
+    //친구 이름 수정
+    @PatchMapping("/name")
+    public ResponseEntity<?> setFriendName(@RequestBody FriendRequestDto.friendNameDto friendNameDto){
+        friendService.setFriendName(friendNameDto);
+        return ResponseEntity.status(SuccessStatus._SET_FRIENDNAME_SUCCESS.getHttpStatus())
+                .body(SuccessStatus._SET_FRIENDNAME_SUCCESS.convertSuccessDto());
     }
     
     //친구 아이디로 삭제
