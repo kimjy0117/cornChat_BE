@@ -35,6 +35,11 @@ public class FriendService {
             User friend = userRepository.findByUserId(friendId)
                     .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
 
+            //현재 접속한 유저와 친구추가할 사용자가 일치하는지 확인
+            if(user.getUserId().equals(friend.getUserId())){
+                throw new CustomException(ErrorStatus._ADD_FRIEND_MYSELF);
+            }
+
             //이미 친구 관계가 존재하는지 확인
             friendRepository.findByUserAndFriend(user, friend).ifPresent((existing) -> {
                 throw new CustomException(ErrorStatus._DUPLICATED_FRIEND);
@@ -59,6 +64,11 @@ public class FriendService {
             //친구추가할 사용자 정보 추출
             User friend = userRepository.findByPhoneNum(friendPhoneNum)
                     .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
+
+            //현재 접속한 유저와 친구추가할 사용자가 일치하는지 확인
+            if(user.getUserId().equals(friend.getUserId())){
+                throw new CustomException(ErrorStatus._ADD_FRIEND_MYSELF);
+            }
 
             //이미 친구 관계가 존재하는지 확인
             friendRepository.findByUserAndFriend(user, friend).ifPresent((existing) -> {
