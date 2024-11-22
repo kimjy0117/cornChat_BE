@@ -124,8 +124,10 @@ public class UserService {
         //현재 사용자 정보 가져오기
         User user = securityUtil.getCurrentUser();
 
-        if (user.getStatusMessage().equals(statusMessage)){
-            throw new IllegalStateException("기존 상태메시지와 동일합니다.");
+        if(user.getStatusMessage()!=null) {
+            if (user.getStatusMessage().equals(statusMessage)) {
+                throw new IllegalStateException("기존 상태메시지와 동일합니다.");
+            }
         }
 
         user.setStatusMessage(statusMessage);
