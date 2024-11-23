@@ -21,20 +21,20 @@ public class ReissueService {
     private final RefreshRepository refreshRepository;
 
     public ResponseEntity<?> reissueTokens(HttpServletRequest request, HttpServletResponse response){
+        System.out.println("실행이 되긴 하나?");
         //get refresh token
         String refresh = null;
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
 
             if (cookie.getName().equals("refresh")) {
-
                 refresh = cookie.getValue();
             }
         }
 
         //refresh토큰이 없다면 오류 메시지 반환
         if (refresh == null) {
-
+            System.out.println("refresh토큰 없음");
             //response status code
             return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
         }
@@ -44,6 +44,7 @@ public class ReissueService {
         try {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
+            System.out.println("refresh 만료시간 검증");
 
             //response status code
             return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
@@ -53,7 +54,7 @@ public class ReissueService {
         String category = jwtUtil.getCategory(refresh);
 
         if (!category.equals("refresh")) {
-
+            System.out.println("refresh 아님");
             //response status code
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
@@ -61,6 +62,7 @@ public class ReissueService {
         //DB에 저장되어 있는지 확인
         Boolean isExist = refreshRepository.existsByRefresh(refresh);
         if (!isExist) {
+            System.out.println("토큰 db에 저장안됨");
 
             //response body
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
@@ -70,12 +72,12 @@ public class ReissueService {
         String role = jwtUtil.getRole(refresh);
 
         //make new JWT
-        String newAccess = jwtUtil.createJwt("access", email, role, 600000L);
-        String newRefresh = jwtUtil.createJwt("refresh", email, role, 86400000L);
+        String newAccess = jwtUtil.createJwt("access", email, role, 1000*60*30L);
+        String newRefresh = jwtUtil.createJwt("refresh", email, role, 1000*60*60*24L);
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
         refreshRepository.deleteByRefresh(refresh);
-        addRefreshEntity(email, newRefresh, 86400000L);
+        addRefreshEntity(email, newRefresh, 1000*60*60*24L);
 
         //response
         response.setHeader("access", newAccess);
@@ -102,7 +104,7 @@ public class ReissueService {
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(24*60*60);
         //cookie.setSecure(true);
-        //cookie.setPath("/");
+        cookie.setPath("/");
         cookie.setHttpOnly(true);
 
         return cookie;

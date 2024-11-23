@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/token")
-public class ReissueController {
+public class ReissueController implements ReissueControllerDocs {
 
     public final ReissueService reissueService;
 
