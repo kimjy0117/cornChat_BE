@@ -30,7 +30,7 @@ public interface ChatRoomControllerDocs {
             @ApiResponse(responseCode = "401", description = "유효하지 않은 사용자 인증 정보입니다."),
             @ApiResponse(responseCode = "500", description = "서버에러"),
     })
-    public ResponseEntity<?> createDmChatRoom(@RequestParam String friendId);
+    public ResponseEntity<?> createDmChatRoom(@RequestBody RequestDto.FriendIdDto friendIdDto);
 
     //채팅방 리스트 가져오기
     @Operation(summary = "채팅방 리스트 가져오기", description = "채팅방 리스트를 가져옵니다.")
@@ -60,7 +60,7 @@ public interface ChatRoomControllerDocs {
             @ApiResponse(responseCode = "401", description = "유효하지 않은 사용자 인증 정보입니다."),
             @ApiResponse(responseCode = "500", description = "서버에러"),
     })
-    public ResponseEntity<?> addMemberToChatRoom(@PathVariable Long roomId, @RequestBody String friendId);
+    public ResponseEntity<?> addMemberToChatRoom(@PathVariable Long roomId, @RequestBody RequestDto.FriendIdDto friendIdDto);
 
     //채팅방 나가기
     @Operation(summary = "채팅방 나가기", description = "채팅방을 나갑니다.")

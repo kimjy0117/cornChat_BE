@@ -10,18 +10,19 @@ import org.example.cornchat_be.domain.chat.dto.ResponseDto;
 import org.example.cornchat_be.domain.chat.entity.ChatRoom;
 import org.example.cornchat_be.domain.chat.entity.ChatRoomMember;
 import org.example.cornchat_be.domain.chat.entity.ChatRoomType;
+import org.example.cornchat_be.domain.chat.entity.Message;
 import org.example.cornchat_be.domain.chat.repository.ChatRoomMemberRepository;
 import org.example.cornchat_be.domain.chat.repository.ChatRoomRepository;
+import org.example.cornchat_be.domain.chat.repository.MessageRepository;
 import org.example.cornchat_be.domain.friend.entity.Friend;
 import org.example.cornchat_be.domain.friend.repository.FriendRepository;
 import org.example.cornchat_be.domain.user.entity.User;
 import org.example.cornchat_be.domain.user.repository.UserRepository;
 import org.example.cornchat_be.util.SecurityUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,20 +30,21 @@ import java.util.stream.Collectors;
 public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
+    private final MessageRepository messageRepository;
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
     private final SecurityUtil securityUtil;
 
     //채팅방 만들기
-    public ChatRoom createChatRoom(RequestDto.ChatRoomRequestDto chatRoomRequestDto) {
+    @Transactional
+    public ResponseDto.ChatRoomResponseDto createChatRoom(RequestDto.ChatRoomRequestDto chatRoomRequestDto) {
         //현재 접속한 유저 정보 가져옴
         User currentUser = securityUtil.getCurrentUser();
 
         // 채팅방 생성
         ChatRoom chatRoom = new ChatRoom();
-        chatRoom.setTitle(chatRoom.getTitle());
+        chatRoom.setTitle(chatRoomRequestDto.getTitle());
         chatRoom.setType(ChatRoomType.GROUP);
-        chatRoom.setCreator(currentUser);
 
         //chatRoomMember객체 리스트 생성
         List<ChatRoomMember> members = new ArrayList<>();
@@ -58,41 +60,61 @@ public class ChatRoomService {
             members.add(member);
         }
 
+        //현재 접속한 유저정보도 넣기
+        members.add(ChatRoomMemberConverter.createChatRoomMember(chatRoom, currentUser));
+
         //멤버 리스트 저장
         chatRoomMemberRepository.saveAll(members);
 
         //채팅방 저장
         chatRoomRepository.save(chatRoom);
 
-        return chatRoom;
+        return ChatRoomConverter.convertToChatRoomDto(chatRoom);
     }
 
     //개인 채팅방 만들기
-    public ChatRoom createDm(String friendId) {
+    @Transactional
+    public ResponseDto.ChatRoomResponseDto createDm(RequestDto.FriendIdDto friendIdDto) {
+        //친구 아이디 가져오기
+        String friendId = friendIdDto.getFriendId();
+
         //현재 접속한 유저 정보 가져옴
         User user = securityUtil.getCurrentUser();
-
-        //기존 DM방이 있는지 확인
-        Optional<ChatRoom> existingDm = chatRoomRepository.findDirectMessageRoom(user.getId(), friendId, ChatRoomType.DM);
-
-        //기존 DM방이 있으면 반환
-        if (existingDm.isPresent()) {
-            return existingDm.get();
-        }
 
         //친구 정보 조회
         User friend = userRepository.findByUserId(friendId)
                 .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
 
-        //친구관계 정보 가져오기
-        Friend friendRelation = friendRepository.findByUserAndFriend(user, friend)
-                .orElseThrow(() -> new IllegalArgumentException("친구 관계가 존재하지 않습니다."));
+        //채팅방 조회를 위해 list로 만들어줌
+        List<User> users = Arrays.asList(user, friend);
 
+        //기존 DM방이 있는지 확인
+        Optional<ChatRoom> existingDm = chatRoomRepository.findDmChatRoomsWithUsers(users);
+//        Optional<ChatRoom> existingDm = chatRoomRepository.findDirectMessageRoom(user.getId(), friendId, ChatRoomType.DM);
+
+        //기존 DM방이 있으면 반환
+        if (existingDm.isPresent()) {
+            System.out.println("기존 dm방 반환");
+            return  ChatRoomConverter.convertToChatRoomDto(existingDm.get());
+
+        }
+
+        System.out.println("친구아이디: " + friendId);
+
+        //채팅방 제목
+        String roomTitle = friend.getUserName();
+
+        //자신이 아니라면
+        if (!user.getUserId().equals(friend.getUserId())) {
+            //친구관계 정보 가져오기
+            Friend friendRelation = friendRepository.findByUserAndFriend(user, friend)
+                    .orElseThrow(() -> new IllegalArgumentException("친구 관계가 존재하지 않습니다."));
+            roomTitle = friendRelation.getFriendNickname();
+        }
 
         //새로운 DM채팅방 생성
         ChatRoom newDm = new ChatRoom();
-        newDm.setTitle(friendRelation.getFriendNickname());
-        newDm.setCreator(user);
+        newDm.setTitle(roomTitle);
         newDm.setType(ChatRoomType.DM);
 
         //chatRoomMember객체 리스트 생성
@@ -104,17 +126,28 @@ public class ChatRoomService {
         //DM채팅방에 멤버 객체 넣기
         newDm.setMembers(members);
 
-        return chatRoomRepository.save(newDm);
+        return ChatRoomConverter.convertToChatRoomDto(chatRoomRepository.save(newDm));
     }
 
-    //현재 접속한 유저의 채티방 리스트 가져오기
-    public List<ResponseDto.ChatRoomResponseDto> getUserChatRooms() {
+    //현재 접속한 유저의 채팅방 리스트 가져오기
+    public List<ResponseDto.ChatRoomListResponseDto> getUserChatRooms() {
         //현재 접속한 유저 정보 가져옴
         User user = securityUtil.getCurrentUser();
 
-        List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByUserId(user.getId());
+        List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByUser(user);
+
         return chatRooms.stream()
-                .map(ChatRoomConverter::convertToChatRoomDto)
+                .map(chatRoom -> {
+                    Optional<Message> latestMessageOpt = messageRepository.findFirstByChatRoomIdOrderBySendAtDesc(chatRoom.getId());
+
+                    // 메시지가 없으면 빈 문자열을 기본값으로 설정
+                    Message latestMessage = latestMessageOpt.orElse(Message.builder().senderId("").content("").build());
+                    return ChatRoomConverter.convertToChatRoomListDto(chatRoom, latestMessage);
+                })
+                .sorted(Comparator.comparing(
+                        ResponseDto.ChatRoomListResponseDto::getLatestMessageAt,
+                        Comparator.nullsLast(Comparator.naturalOrder()))//최신순으로 정렬
+                )
                 .collect(Collectors.toList());
     }
 
@@ -125,7 +158,11 @@ public class ChatRoomService {
     }
 
     //채팅방 초대
-    public void addMemberToChatRoom(Long roomId, String friendId) {
+    @Transactional
+    public void addMemberToChatRoom(Long roomId, RequestDto.FriendIdDto friendIdDto) {
+        //친구 아이디 가져오기
+        String friendId = friendIdDto.getFriendId();
+
         //채팅방 존재 확인
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_ROOM_ID));
@@ -140,6 +177,8 @@ public class ChatRoomService {
             throw new CustomException(ErrorStatus._ALREADY_EXIST_FRIEND);
         }
 
+        System.out.println(friendId);
+
         User user = userRepository.findByUserId(friendId)
                 .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
 
@@ -153,6 +192,7 @@ public class ChatRoomService {
     }
 
     //채팅방 나가기
+    @Transactional
     public void leaveChatRoom(Long roomId) {
         //현재 접속한 유저 정보 가져옴
         User user = securityUtil.getCurrentUser();

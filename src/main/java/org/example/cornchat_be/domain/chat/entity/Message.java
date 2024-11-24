@@ -3,6 +3,7 @@ package org.example.cornchat_be.domain.chat.entity;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -24,6 +25,6 @@ public class Message {
     private String messageType; // TEXT, IMAGE
 //    private List<String> readBy = new ArrayList<>();
 
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime sendAt;
 }

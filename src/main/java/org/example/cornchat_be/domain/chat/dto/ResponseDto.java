@@ -40,4 +40,16 @@ public class ResponseDto {
         private String title;
         private int memberCount;
     }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChatRoomListResponseDto{
+        private Long id;
+        private String title;
+        private List<String> members;
+        private String lastMessage;
+        private LocalDateTime latestMessageAt;
+    }
 }

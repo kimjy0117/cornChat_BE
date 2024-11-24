@@ -21,24 +21,25 @@ public class ChatRoomController implements ChatRoomControllerDocs {
     //채팅방 생성
     @PostMapping
     public ResponseEntity<?> createChatRoom(@RequestBody RequestDto.ChatRoomRequestDto chatRoomRequestDto){
-        ChatRoom response = chatRoomService.createChatRoom(chatRoomRequestDto);
-        //추후에 responseDto로 변환해야됨
+        ResponseDto.ChatRoomResponseDto response = chatRoomService.createChatRoom(chatRoomRequestDto);
         return ResponseEntity.status(SuccessStatus._CREATE_CHATROOM_SUCCESS.getHttpStatus())
                 .body(SuccessStatus._CREATE_CHATROOM_SUCCESS.convertSuccessDto(response));
     }
 
     //개인 채팅방 생성
     @PostMapping("/dm")
-    public ResponseEntity<?> createDmChatRoom(@RequestParam String friendId){
-        ChatRoom chatRoom = chatRoomService.createDm(friendId);
+    public ResponseEntity<?> createDmChatRoom(@RequestBody RequestDto.FriendIdDto friendIdDto){
+        System.out.println(friendIdDto.getFriendId());
+        ResponseDto.ChatRoomResponseDto response = chatRoomService.createDm(friendIdDto);
         //추후에 responseDto로 변환해야됨
-        return ResponseEntity.ok(SuccessStatus._CREATE_CHATROOM_SUCCESS.convertSuccessDto(chatRoom));
+        return ResponseEntity.ok(SuccessStatus._CREATE_CHATROOM_SUCCESS.convertSuccessDto(response));
     }
 
     //채팅방 리스트 가져오기
     @GetMapping
     public ResponseEntity<?> getUserChatRooms(){
-        List<ResponseDto.ChatRoomResponseDto> response = chatRoomService.getUserChatRooms();
+        List<ResponseDto.ChatRoomListResponseDto> response = chatRoomService.getUserChatRooms();
+
         return ResponseEntity.status(SuccessStatus._GET_CHATROOM_LIST_SUCCESS.getHttpStatus())
                 .body(SuccessStatus._GET_CHATROOM_LIST_SUCCESS.convertSuccessDto(response));
     }
@@ -54,8 +55,8 @@ public class ChatRoomController implements ChatRoomControllerDocs {
 
     //채팅방 초대
     @PostMapping("/{roomId}")
-    public ResponseEntity<?> addMemberToChatRoom(@PathVariable Long roomId, @RequestBody String friendId){
-        chatRoomService.addMemberToChatRoom(roomId, friendId);
+    public ResponseEntity<?> addMemberToChatRoom(@PathVariable Long roomId, @RequestBody RequestDto.FriendIdDto friendIdDto){
+        chatRoomService.addMemberToChatRoom(roomId, friendIdDto);
         return ResponseEntity.ok(SuccessStatus._ADD_FRIEND_CHATROOM_SUCCESS.convertSuccessDto());
     }
 

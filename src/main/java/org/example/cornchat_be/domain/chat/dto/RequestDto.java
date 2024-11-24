@@ -23,7 +23,11 @@ public class RequestDto {
     @Getter
     public static class ChatRoomRequestDto {
         private String title;
-        private ChatRoomType type; //DM or GROUP
         private List<String> memberIds;
+    }
+
+    @Getter
+    public static class FriendIdDto{
+        private String friendId;
     }
 }

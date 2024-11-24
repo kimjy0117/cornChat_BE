@@ -3,6 +3,7 @@ package org.example.cornchat_be.domain.chat.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.cornchat_be.domain.user.entity.User;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -21,20 +22,16 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String title;
 
     @Enumerated(EnumType.STRING)
     private ChatRoomType type; // DM or GROUP
 
-    @ManyToOne
-    @JoinColumn(name = "creator")
-    private User creator;
-
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     private List<ChatRoomMember> members = new ArrayList<>();
 
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime createAt;
 
     // 멤버 추가 로직
