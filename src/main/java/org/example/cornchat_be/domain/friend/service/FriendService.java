@@ -15,7 +15,9 @@ import org.example.cornchat_be.util.jwt.dto.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +29,7 @@ public class FriendService {
     private final SecurityUtil securityUtil;
 
     //아이디로 친구 추가
+    @Transactional
     public void addFriendByFriendId(String friendId) {
             //현재 접속한 유저 정보 가져옴
             User user = securityUtil.getCurrentUser();
@@ -57,6 +60,7 @@ public class FriendService {
     }
 
     //핸드폰 번호로 친구 추가
+    @Transactional
     public void addFriendByFriendPhoneNum(String friendPhoneNum){
             //현재 접속한 유저 정보 가져옴
             User user = securityUtil.getCurrentUser();
@@ -87,6 +91,7 @@ public class FriendService {
     }
 
     //친구 이름 수정
+    @Transactional
     public void setFriendName(FriendRequestDto.friendNameDto friendNameDto){
         //현재 접속한 유저 정보 가져옴
         User user = securityUtil.getCurrentUser();
@@ -109,6 +114,7 @@ public class FriendService {
     }
 
     //친구 삭제
+    @Transactional
     public void removeFriend(String friendId){
         //현재 인증된 유저 정보 가져오기
         User user = securityUtil.getCurrentUser();
@@ -121,8 +127,11 @@ public class FriendService {
         Friend friendRelation = friendRepository.findByUserAndFriend(user, friend)
                 .orElseThrow(() -> new IllegalArgumentException("친구 관계가 존재하지 않습니다."));
 
+        //유저 리스트에서 친구 제거
+        user.getFriends().remove(friendRelation);
+
         //친구관계 삭제
-        friendRepository.delete(friendRelation);
+        friendRepository.deleteById(friendRelation.getId());
     }
 
     //친구 목록 조회
@@ -135,6 +144,18 @@ public class FriendService {
 
         return friends.stream()
                 .filter(f -> f.getFriend() != null)
+                .sorted((f1, f2) -> {
+                    boolean f1IsKorean = f1.getFriendNickname().matches("^[가-힣].*");
+                    boolean f2IsKorean = f2.getFriendNickname().matches("^[가-힣].*");
+
+                    if (f1IsKorean && !f2IsKorean) {
+                        return -1; // f1이 한글이고 f2가 영어인 경우
+                    } else if (!f1IsKorean && f2IsKorean) {
+                        return 1;  // f2가 한글이고 f1이 영어인 경우
+                    } else {
+                        return f1.getFriendNickname().compareTo(f2.getFriendNickname());
+                    }
+                })
                 .map(FriendConverter::createFriendResponseDto)  // FriendConverter 사용
                 .collect(Collectors.toList());
     }
