@@ -68,11 +68,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         //토큰 생성
-        String access = jwtUtil.createJwt("access", email, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", email, role, 86400000L);
+        String access = jwtUtil.createJwt("access", email, role, 1000*60*60*3L);
+        String refresh = jwtUtil.createJwt("refresh", email, role, 1000*60*60*24L);
 
         //Refresh 토큰 저장
-        addRefreshEntity(email, refresh, 86400000L);
+//        addRefreshEntity(email, refresh, 86400000L);
+        addRefreshEntity(email, refresh, 1000*60*60*24L);
 
         //응답 설정
         response.setHeader("Authorization", access);
@@ -105,7 +106,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         cookie.setMaxAge(24*60*60);
         //https로 할 경우 아래에 주석을 풀어주어야 함
         //cookie.setSecure(true);
-        //cookie.setPath("/");
+        cookie.setPath("/");
         cookie.setHttpOnly(true);
 
         return cookie;
