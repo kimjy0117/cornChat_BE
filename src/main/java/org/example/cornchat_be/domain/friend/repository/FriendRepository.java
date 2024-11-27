@@ -16,4 +16,11 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     //친구관계 중복 조회
     Optional<Friend> findByUserAndFriend(User user, User friend);
 
+    //친구관계 유무
+    Boolean existsByUserAndFriend(User user, User Friend);
+
+    //친구 관계 삭제
+    void deleteByUser(User user);
+    void deleteByFriend(User friend);
+
 }

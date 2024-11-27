@@ -2,9 +2,8 @@ package org.example.cornchat_be.domain.chat.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.cornchat_be.domain.user.entity.User;
+import org.example.cornchat_be.domain.chat.role.ChatRoomType;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

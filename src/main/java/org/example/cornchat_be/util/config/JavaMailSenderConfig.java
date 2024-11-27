@@ -1,4 +1,4 @@
-package org.example.cornchat_be.config;
+package org.example.cornchat_be.util.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

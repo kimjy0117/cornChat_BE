@@ -3,6 +3,9 @@ package org.example.cornchat_be.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import org.example.cornchat_be.apiPayload.code.status.ErrorStatus;
 import org.example.cornchat_be.apiPayload.exception.CustomException;
+import org.example.cornchat_be.domain.chat.entity.ChatRoomMember;
+import org.example.cornchat_be.domain.chat.repository.ChatRoomMemberRepository;
+import org.example.cornchat_be.domain.friend.repository.FriendRepository;
 import org.example.cornchat_be.domain.user.converter.UserConverter;
 import org.example.cornchat_be.domain.user.dto.UserRequestDto;
 import org.example.cornchat_be.domain.user.dto.UserResponseDto;
@@ -22,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FriendRepository friendRepository;
+    private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RedisUtil redisUtil;
     private final SecurityUtil securityUtil;
@@ -91,6 +96,13 @@ public class UserService {
     public void deleteUser() {
         //현재 사용자 정보 가져오기
         User user = securityUtil.getCurrentUser();
+
+        //친구관계 삭제
+        friendRepository.deleteByUser(user);
+        friendRepository.deleteByFriend(user);
+
+        //채팅방 멤버 삭제
+        chatRoomMemberRepository.deleteByUser(user);
 
         //이메일에 해당하는 사용자 삭제
         userRepository.deleteByEmail(user.getEmail());

@@ -2,6 +2,7 @@ package org.example.cornchat_be.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.cornchat_be.domain.chat.entity.ChatRoomMember;
 import org.example.cornchat_be.domain.friend.entity.Friend;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
@@ -35,6 +36,9 @@ public class User {
     // 친구 관계
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Friend> friends = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user",orphanRemoval = true)
+    private List<ChatRoomMember> chatRooms = new ArrayList<>();
 
     @CreationTimestamp
     private LocalDateTime createdAt;

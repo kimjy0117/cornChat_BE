@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.cornchat_be.apiPayload.code.status.ErrorStatus;
+import org.example.cornchat_be.apiPayload.exception.CustomException;
 import org.example.cornchat_be.domain.user.entity.User;
 import org.example.cornchat_be.util.jwt.dto.CustomUserDetails;
 import org.springframework.security.access.AccessDeniedException;
@@ -43,6 +45,7 @@ public class JWTFilter extends OncePerRequestFilter {
         try {
             jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) {
+//            throw new CustomException(ErrorStatus._EXPIRED_ACCESS_TOKEN);
 
             //response body
             PrintWriter writer = response.getWriter();

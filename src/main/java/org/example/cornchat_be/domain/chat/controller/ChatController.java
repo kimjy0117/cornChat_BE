@@ -7,11 +7,14 @@ import org.example.cornchat_be.domain.chat.dto.ResponseDto;
 import org.example.cornchat_be.domain.chat.entity.Message;
 import org.example.cornchat_be.domain.chat.service.ChatService;
 import org.example.cornchat_be.domain.chat.service.MessageService;
+import org.example.cornchat_be.domain.user.entity.User;
+import org.example.cornchat_be.util.jwt.JWTUtil;
+import org.example.cornchat_be.util.jwt.dto.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.handler.annotation.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,12 +29,17 @@ public class ChatController {
 
     @MessageMapping("/chat/{roomId}")  // 클라이언트가 보내는 메시지
     @SendTo("/sub/chat/{roomId}")  // 클라이언트가 받는 메시지
-    public ResponseDto.ResponseMessageDto sendMessage(@DestinationVariable Long roomId,
+    public ResponseEntity<?> sendMessage(@DestinationVariable Long roomId,
                                                       @Payload RequestDto.RequestMessageDto requestMessageDto) {
+
+        //dto에 채팅방 아이디 넣기
         requestMessageDto.setChatRoomId(roomId);
 
         //메시지를 저장 후 dto반환
-        return chatService.saveMessage(requestMessageDto);
+        ResponseDto.ResponseMessageDto response = chatService.saveMessage(requestMessageDto);
+
+        return ResponseEntity.status(SuccessStatus._SAVE_CHAT_MESSAGE_SUCCESS.getHttpStatus())
+                .body(SuccessStatus._SAVE_CHAT_MESSAGE_SUCCESS.convertSuccessDto(response));
     }
 
 

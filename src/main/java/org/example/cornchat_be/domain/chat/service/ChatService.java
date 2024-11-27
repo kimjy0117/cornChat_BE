@@ -9,10 +9,17 @@ import org.example.cornchat_be.domain.chat.dto.ResponseDto;
 import org.example.cornchat_be.domain.chat.entity.Message;
 import org.example.cornchat_be.domain.chat.repository.ChatRoomRepository;
 import org.example.cornchat_be.domain.chat.repository.MessageRepository;
+import org.example.cornchat_be.domain.chat.util.DateUtil;
+import org.example.cornchat_be.domain.friend.entity.Friend;
+import org.example.cornchat_be.domain.friend.repository.FriendRepository;
+import org.example.cornchat_be.domain.user.entity.User;
+import org.example.cornchat_be.domain.user.repository.UserRepository;
+import org.example.cornchat_be.util.SecurityUtil;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +27,7 @@ import java.util.stream.Collectors;
 public class ChatService {
     private final MessageRepository messageRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final UserRepository userRepository;
 
     //메시지 저장
     public ResponseDto.ResponseMessageDto saveMessage(RequestDto.RequestMessageDto requestMessageDto){
@@ -28,26 +36,17 @@ public class ChatService {
             throw new CustomException(ErrorStatus._NOT_EXIST_ROOM_ID);
         }
 
+        //Message객체로 변환
         Message message = MessageConverter.createMessage(requestMessageDto);
-
+        //Message저장
         Message savedMessage = messageRepository.save(message);
-        return mapToResponseDto(savedMessage);
-    }
 
-    //채팅방 별 메시지 가져오기
-    public List<ResponseDto.ResponseMessageDto> getMessagesByRoom(Long roomId) {
-        List<Message> messages = messageRepository.findByChatRoomIdOrderBySendAtAsc(roomId);
-        return messages.stream().map(this::mapToResponseDto).collect(Collectors.toList());
-    }
+        //글쓴이 정보 가져오기
+        User sender = userRepository.findByUserId(savedMessage.getSenderId())
+                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
 
-    private ResponseDto.ResponseMessageDto mapToResponseDto(Message message) {
-        return ResponseDto.ResponseMessageDto.builder()
-                .id(message.getId())
-                .senderId(message.getSenderId())
-                .chatRoomId(message.getChatRoomId())
-                .content(message.getContent())
-                .messageType(message.getMessageType())
-                .sendAt(message.getSendAt())
-                .build();
+        //글쓴이 닉네임 가져오기
+        String senderName = sender.getUserName();
+        return MessageConverter.convertResponseMessageDto(savedMessage, senderName);
     }
 }

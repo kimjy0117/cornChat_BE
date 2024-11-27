@@ -1,6 +1,6 @@
 package org.example.cornchat_be;
 
-import org.example.cornchat_be.util.RedisUtil;
+import org.example.cornchat_be.util.redis.RedisUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,7 @@ public class EmailTestApplicationTests {
         String code = "111111";
 
         //when
-        redisUtil.setDataExpire(email, code, 60 * 60L);
+        redisUtil.setData(email, code);
 
         //then
         Assertions.assertTrue(redisUtil.existData("test@test.com"));

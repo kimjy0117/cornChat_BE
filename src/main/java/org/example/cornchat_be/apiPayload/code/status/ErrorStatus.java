@@ -15,6 +15,9 @@ public enum ErrorStatus {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
     _CONFLICT(HttpStatus.CONFLICT,"COMMON409","잘못된 입력입니다."),
 
+    //토큰 에러
+    _EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "EXPIREDTOKEN401", "액세스 토큰이 만료되었습니다."),
+
     // 사용자 정보
     _ALREADY_EXIST_EMAIL(HttpStatus.CONFLICT, "EXISTEMAIL409", "이미 사용중인 이메일입니다."),
     _ALREADY_NOT_EXIST_EMAIL(HttpStatus.BAD_REQUEST, "NOTEXISTEMAIL400", "존재하지 않는 이메일 주소입니다."),

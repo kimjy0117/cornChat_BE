@@ -88,7 +88,7 @@ public class SecurityConfig {
         //인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui/index.html").permitAll() // Swagger 관련 URL 허용
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html").permitAll() // Swagger 관련 URL 허용
                         .requestMatchers("/api/login/**", "/").permitAll()
                         .requestMatchers("/api/user/deleteUser").authenticated() // 인증 필요
 //                        .requestMatchers("/api/user/deleteUser").hasRole("USER") // 인증 필요
@@ -98,7 +98,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/**").permitAll()
                         .requestMatchers("/api/email/**").permitAll() // email 인증 관련 URL 허용
                         .requestMatchers("/api/token/reissue").permitAll()
-                        .requestMatchers("/chat/**").permitAll() // WebSocket 엔드포인트 허용
+                        .requestMatchers("/ws/**").permitAll() // WebSocket 엔드포인트 허용
                         .anyRequest().authenticated());
 
         //JWTFilter를 LoginFilter 앞에 추가하여 JWT토큰을 처리

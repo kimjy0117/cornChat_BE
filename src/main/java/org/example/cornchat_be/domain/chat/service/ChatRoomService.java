@@ -9,7 +9,7 @@ import org.example.cornchat_be.domain.chat.dto.RequestDto;
 import org.example.cornchat_be.domain.chat.dto.ResponseDto;
 import org.example.cornchat_be.domain.chat.entity.ChatRoom;
 import org.example.cornchat_be.domain.chat.entity.ChatRoomMember;
-import org.example.cornchat_be.domain.chat.entity.ChatRoomType;
+import org.example.cornchat_be.domain.chat.role.ChatRoomType;
 import org.example.cornchat_be.domain.chat.entity.Message;
 import org.example.cornchat_be.domain.chat.repository.ChatRoomMemberRepository;
 import org.example.cornchat_be.domain.chat.repository.ChatRoomRepository;
@@ -90,7 +90,6 @@ public class ChatRoomService {
 
         //기존 DM방이 있는지 확인
         Optional<ChatRoom> existingDm = chatRoomRepository.findDmChatRoomsWithUsers(users);
-//        Optional<ChatRoom> existingDm = chatRoomRepository.findDirectMessageRoom(user.getId(), friendId, ChatRoomType.DM);
 
         //기존 DM방이 있으면 반환
         if (existingDm.isPresent()) {
@@ -102,14 +101,14 @@ public class ChatRoomService {
         System.out.println("친구아이디: " + friendId);
 
         //채팅방 제목
-        String roomTitle = friend.getUserName();
+        String roomTitle = "나와의 채팅방";
 
         //자신이 아니라면
         if (!user.getUserId().equals(friend.getUserId())) {
             //친구관계 정보 가져오기
             Friend friendRelation = friendRepository.findByUserAndFriend(user, friend)
                     .orElseThrow(() -> new IllegalArgumentException("친구 관계가 존재하지 않습니다."));
-            roomTitle = friendRelation.getFriendNickname();
+            roomTitle = friendRelation.getFriendNickname() + ", " + user.getUserName() + "님 채팅방";
         }
 
         //새로운 DM채팅방 생성
@@ -141,12 +140,12 @@ public class ChatRoomService {
                     Optional<Message> latestMessageOpt = messageRepository.findFirstByChatRoomIdOrderBySendAtDesc(chatRoom.getId());
 
                     // 메시지가 없으면 빈 문자열을 기본값으로 설정
-                    Message latestMessage = latestMessageOpt.orElse(Message.builder().senderId("").content("").build());
+                    Message latestMessage = latestMessageOpt.orElse(Message.builder().senderId("").content(" ").build());
                     return ChatRoomConverter.convertToChatRoomListDto(chatRoom, latestMessage);
                 })
                 .sorted(Comparator.comparing(
                         ResponseDto.ChatRoomListResponseDto::getLatestMessageAt,
-                        Comparator.nullsLast(Comparator.naturalOrder()))//최신순으로 정렬
+                        Comparator.nullsLast(Comparator.reverseOrder()))//최신순으로 정렬
                 )
                 .collect(Collectors.toList());
     }
