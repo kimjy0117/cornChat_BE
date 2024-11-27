@@ -6,6 +6,7 @@ import org.example.cornchat_be.domain.chat.dto.ResponseDto;
 import org.example.cornchat_be.domain.chat.entity.ChatRoom;
 import org.example.cornchat_be.domain.chat.entity.ChatRoomMember;
 import org.example.cornchat_be.domain.chat.entity.Message;
+import org.example.cornchat_be.domain.chat.util.DateUtil;
 import org.example.cornchat_be.domain.user.entity.User;
 
 import java.time.LocalDateTime;
@@ -35,23 +36,31 @@ public class ChatRoomConverter {
     }
 
     public static ResponseDto.ChatRoomListResponseDto convertToChatRoomListDto(ChatRoom chatRoom, Message message){
-        LocalDateTime latestAt = null;
+        LocalDateTime latestAt = LocalDateTime.MIN;
 
         //만약 마지막 메시지가 없으면 채팅방이 생성된 시간을 넣음
         if(message.getSenderId().isEmpty()){
             latestAt = chatRoom.getCreateAt();
-        } else{
-            latestAt = message.getSendAt();
+        } else if (message.getSendAt() != null){
+            // message.getSendAt()이 String 타입이므로, 이를 LocalDateTime으로 변환
+            latestAt = DateUtil.convertToLocalDateTime(message.getSendAt());
         }
 
         return ResponseDto.ChatRoomListResponseDto.builder()
                 .id(chatRoom.getId())
                 .title(chatRoom.getTitle())
                 .members(chatRoom.getMembers().stream()
-                        .map(member -> member.getUser().getUserName())
-                        .collect(Collectors.toList()))
+                    .map(member -> convertToChatRoomMemberInfoDto(member.getUser()))
+                    .collect(Collectors.toList()))
                 .lastMessage(message.getContent())
                 .latestMessageAt(latestAt)
+                .build();
+    }
+
+    public static ResponseDto.ChatRoomMemberInfoDto convertToChatRoomMemberInfoDto(User user){
+        return ResponseDto.ChatRoomMemberInfoDto.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
                 .build();
     }
 }

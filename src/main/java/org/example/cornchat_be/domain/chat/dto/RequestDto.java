@@ -1,9 +1,7 @@
 package org.example.cornchat_be.domain.chat.dto;
 
 import lombok.*;
-import org.example.cornchat_be.domain.chat.entity.ChatRoomType;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class RequestDto {

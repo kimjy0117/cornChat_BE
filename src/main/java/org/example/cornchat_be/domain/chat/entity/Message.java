@@ -3,28 +3,24 @@ package org.example.cornchat_be.domain.chat.entity;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 @Data
 @Document(collection = "messages")
 @Builder
 @Getter
 public class Message {
+    //MongoDb는 기본적으로 String형식의 ObjectId를 사용해서 Id를 생성한다. 그렇기 때문에 id를 String형으로 해준다.
     @Id
-    private Long id;
+    private String id;
     private Long chatRoomId;
     private String senderId;
     private String content;
     private String messageType; // TEXT, IMAGE
-//    private List<String> readBy = new ArrayList<>();
 
-    @CreationTimestamp
-    private LocalDateTime sendAt;
+    //몽고db는 LocalDateTime형식을 지원하지 않는다.
+    private Date sendAt;
 }

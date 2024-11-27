@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.cornchat_be.domain.chat.entity.ChatRoomType;
+import org.example.cornchat_be.domain.chat.role.ChatRoomType;
+import org.example.cornchat_be.domain.user.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public class ResponseDto {
@@ -15,8 +17,9 @@ public class ResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ResponseMessageDto{
-        private Long id;
+        private String id;
         private String senderId;
+        private String senderName;
         private Long chatRoomId;
         private String content;
         private String messageType;
@@ -48,8 +51,16 @@ public class ResponseDto {
     public static class ChatRoomListResponseDto{
         private Long id;
         private String title;
-        private List<String> members;
+        private List<ChatRoomMemberInfoDto> members;
         private String lastMessage;
         private LocalDateTime latestMessageAt;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class ChatRoomMemberInfoDto{
+        private String userName;
+        private String userId;
     }
 }

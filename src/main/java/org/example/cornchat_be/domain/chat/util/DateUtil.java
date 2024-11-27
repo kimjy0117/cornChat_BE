@@ -1,4 +1,4 @@
-package org.example.cornchat_be.domain.chat.entity.util;
+package org.example.cornchat_be.domain.chat.util;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
