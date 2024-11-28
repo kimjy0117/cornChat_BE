@@ -1,10 +1,8 @@
 package org.example.cornchat_be.domain.chat.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.example.cornchat_be.domain.chat.role.ChatRoomType;
+import org.example.cornchat_be.domain.chat.role.FriendType;
 import org.example.cornchat_be.domain.user.entity.User;
 
 import java.time.LocalDateTime;
@@ -57,10 +55,22 @@ public class ResponseDto {
     }
 
     @Getter
+    @Setter
     @Builder
     @AllArgsConstructor
     public static class ChatRoomMemberInfoDto{
         private String userName;
         private String userId;
+        private FriendType type;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class ChatRoomDetailDto{
+        private Long id;
+        private String title;
+        private ChatRoomType type;
+        private List<ChatRoomMemberInfoDto> members;
     }
 }

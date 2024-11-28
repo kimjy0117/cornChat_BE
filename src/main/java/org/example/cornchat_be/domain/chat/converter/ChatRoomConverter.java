@@ -63,4 +63,13 @@ public class ChatRoomConverter {
                 .userName(user.getUserName())
                 .build();
     }
+
+    public static ResponseDto.ChatRoomDetailDto convertToChatRoomDetailDto (ChatRoom chatRoom, List<ResponseDto.ChatRoomMemberInfoDto> members){
+        return ResponseDto.ChatRoomDetailDto.builder()
+                .id(chatRoom.getId())
+                .title(chatRoom.getTitle())
+                .type(chatRoom.getType())
+                .members(members)
+                .build();
+    }
 }

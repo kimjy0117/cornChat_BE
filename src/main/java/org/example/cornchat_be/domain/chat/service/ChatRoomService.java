@@ -14,6 +14,7 @@ import org.example.cornchat_be.domain.chat.entity.Message;
 import org.example.cornchat_be.domain.chat.repository.ChatRoomMemberRepository;
 import org.example.cornchat_be.domain.chat.repository.ChatRoomRepository;
 import org.example.cornchat_be.domain.chat.repository.MessageRepository;
+import org.example.cornchat_be.domain.chat.role.FriendType;
 import org.example.cornchat_be.domain.friend.entity.Friend;
 import org.example.cornchat_be.domain.friend.repository.FriendRepository;
 import org.example.cornchat_be.domain.user.entity.User;
@@ -151,9 +152,46 @@ public class ChatRoomService {
     }
 
     //채팅방 정보 조회
-    public ChatRoom getChatRoomDetails(Long roomId) {
-        return chatRoomRepository.findById(roomId)
+    public ResponseDto.ChatRoomDetailDto getChatRoomDetails(Long roomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_ROOM_ID));
+
+        //현재 접속한 유저 정보 가져옴
+        User user = securityUtil.getCurrentUser();
+
+        List<ResponseDto.ChatRoomMemberInfoDto> members =  new ArrayList<>();
+        for(ChatRoomMember member : chatRoom.getMembers()){
+            //초기세팅
+            String userName = member.getUser().getUserName();
+            String userId = member.getUser().getUserId();
+            FriendType type = FriendType.NotFriend;
+
+            //멤버가 나인지 확인
+            if(user.getUserId().equals(member.getUser().getUserId())){
+                userName = member.getUser().getUserName();
+                userId = member.getUser().getUserId();
+                type = FriendType.Me;
+            }
+            //멤버가 친구인지 확인
+            else if (friendRepository.existsByUserAndFriend(user, member.getUser())){
+                Friend friend = friendRepository.findByUserAndFriend(user, member.getUser())
+                        .orElseThrow(() -> new IllegalArgumentException("친구 관계가 존재하지 않습니다."));
+
+                userName = friend.getFriendNickname();
+                userId = member.getUser().getUserId();
+                type = FriendType.Friend;
+            }
+
+            ResponseDto.ChatRoomMemberInfoDto chatRoomMemberInfoDto = ResponseDto.ChatRoomMemberInfoDto.builder()
+                    .userName(userName)
+                    .userId(userId)
+                    .type(type)
+                    .build();
+
+            members.add(chatRoomMemberInfoDto);
+        }
+
+        return ChatRoomConverter.convertToChatRoomDetailDto(chatRoom, members);
     }
 
     //채팅방 초대

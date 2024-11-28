@@ -48,9 +48,9 @@ public class ChatRoomController implements ChatRoomControllerDocs {
     @GetMapping("/room/{roomId}")
     public ResponseEntity<?> getChatRoomDetails(@PathVariable Long roomId){
         //채팅방 정보 조회
-        ChatRoom chatRoom = chatRoomService.getChatRoomDetails(roomId);
+        ResponseDto.ChatRoomDetailDto response = chatRoomService.getChatRoomDetails(roomId);
         //추후에 responseDto로 변환해야됨
-        return ResponseEntity.ok(SuccessStatus._GET_CHATROOM_DETAILS_SUCCESS.convertSuccessDto(chatRoom));
+        return ResponseEntity.ok(SuccessStatus._GET_CHATROOM_DETAILS_SUCCESS.convertSuccessDto(response));
     }
 
     //채팅방 초대
