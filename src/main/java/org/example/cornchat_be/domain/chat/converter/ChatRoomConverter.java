@@ -70,6 +70,7 @@ public class ChatRoomConverter {
                 .title(chatRoom.getTitle())
                 .type(chatRoom.getType())
                 .members(members)
+                .memberCount(members.size())
                 .build();
     }
 }

@@ -160,6 +160,7 @@ public class ChatRoomService {
         User user = securityUtil.getCurrentUser();
 
         List<ResponseDto.ChatRoomMemberInfoDto> members =  new ArrayList<>();
+
         for(ChatRoomMember member : chatRoom.getMembers()){
             //초기세팅
             String userName = member.getUser().getUserName();

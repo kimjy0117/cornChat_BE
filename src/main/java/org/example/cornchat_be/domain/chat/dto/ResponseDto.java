@@ -72,5 +72,6 @@ public class ResponseDto {
         private String title;
         private ChatRoomType type;
         private List<ChatRoomMemberInfoDto> members;
+        private int memberCount;
     }
 }
