@@ -74,4 +74,16 @@ public class ResponseDto {
         private List<ChatRoomMemberInfoDto> members;
         private int memberCount;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NotificationMessageDto{
+        private Long roomId;
+        private String senderId;
+        private String senderName;
+        private String content;
+        private String messageType;
+    }
 }
