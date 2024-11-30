@@ -53,9 +53,8 @@ public class ChatRoomService {
             User user = userRepository.findByUserId(userId)
                     .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
 
-            ChatRoomMember member = new ChatRoomMember();
-            member.setChatRoom(chatRoom);
-            member.setUser(user);
+            //채팅방 멤버 생성
+            ChatRoomMember member = ChatRoomMemberConverter.createChatRoomMember(chatRoom, user);
 
             //리스트에 멤버 추가
             members.add(member);
@@ -96,10 +95,7 @@ public class ChatRoomService {
         if (existingDm.isPresent()) {
             System.out.println("기존 dm방 반환");
             return  ChatRoomConverter.convertToChatRoomDto(existingDm.get());
-
         }
-
-        System.out.println("친구아이디: " + friendId);
 
         //채팅방 제목
         String roomTitle = "나와의 채팅방";
@@ -138,11 +134,43 @@ public class ChatRoomService {
 
         return chatRooms.stream()
                 .map(chatRoom -> {
-                    Optional<Message> latestMessageOpt = messageRepository.findFirstByChatRoomIdOrderBySendAtDesc(chatRoom.getId());
+                    String chatRoomTitle = chatRoom.getTitle();
 
+                    //dm이면 상대방 이름 삽입
+                    if (chatRoom.getType().equals(ChatRoomType.DM)){
+                        //내가 아닌 사용자 뽑아오기
+                        ChatRoomMember friendChatRoomMember = chatRoom.getMembers().stream()
+                                .filter(member -> !member.getUser().getUserId().equals(user.getUserId()))
+                                .findFirst()
+                                .orElse(null);
+
+                        //상대방이 null이 아니고 나와 사용자 친구관계 존재 확인
+                        if (friendChatRoomMember != null && friendRepository.existsByUserAndFriend(user, friendChatRoomMember.getUser())){
+                            Friend friend = friendRepository.findByUserAndFriend(user, friendChatRoomMember.getUser())
+                                    .orElseThrow(() -> new IllegalArgumentException("친구 관계가 존재하지 않습니다."));
+
+                            //친구 닉네임으로 채팅방 제목 설정
+                            chatRoomTitle = friend.getFriendNickname();
+                        }
+                        //나와 친구가 아니라면
+                        else if (friendChatRoomMember != null){
+                            chatRoomTitle = friendChatRoomMember.getUser().getUserName();
+                        }
+                    }
+                    //dm이 아니라면
+                    else {
+                        //현재 사용자의 채팅방 제목 가져오기
+                        ChatRoomMember userChatRoomMember = chatRoom.getMembers().stream()
+                                .filter(member -> member.getUser().getUserId().equals(user.getUserId()))
+                                .findFirst()
+                                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
+                        chatRoomTitle = userChatRoomMember.getChatRoomTitle();
+                    }
+
+                    Optional<Message> latestMessageOpt = messageRepository.findFirstByChatRoomIdOrderBySendAtDesc(chatRoom.getId());
                     // 메시지가 없으면 빈 문자열을 기본값으로 설정
                     Message latestMessage = latestMessageOpt.orElse(Message.builder().senderId("").content(" ").build());
-                    return ChatRoomConverter.convertToChatRoomListDto(chatRoom, latestMessage);
+                    return ChatRoomConverter.convertToChatRoomListDto(chatRoom, chatRoomTitle, latestMessage);
                 })
                 .sorted(Comparator.comparing(
                         ResponseDto.ChatRoomListResponseDto::getLatestMessageAt,
@@ -165,13 +193,13 @@ public class ChatRoomService {
             //초기세팅
             String userName = member.getUser().getUserName();
             String userId = member.getUser().getUserId();
-            FriendType type = FriendType.NotFriend;
+            FriendType type = FriendType.NOT_FRIEND;
 
             //멤버가 나인지 확인
             if(user.getUserId().equals(member.getUser().getUserId())){
                 userName = member.getUser().getUserName();
                 userId = member.getUser().getUserId();
-                type = FriendType.Me;
+                type = FriendType.ME;
             }
             //멤버가 친구인지 확인
             else if (friendRepository.existsByUserAndFriend(user, member.getUser())){
@@ -180,7 +208,7 @@ public class ChatRoomService {
 
                 userName = friend.getFriendNickname();
                 userId = member.getUser().getUserId();
-                type = FriendType.Friend;
+                type = FriendType.FRIEND;
             }
 
             ResponseDto.ChatRoomMemberInfoDto chatRoomMemberInfoDto = ResponseDto.ChatRoomMemberInfoDto.builder()
@@ -227,6 +255,36 @@ public class ChatRoomService {
 
         // 저장
         chatRoomMemberRepository.save(chatRoomMember);
+    }
+
+    //채팅방 다중 멤버 초대
+    @Transactional
+    public void addMembersToChatRoom(Long roomId, RequestDto.FriendIdsDto friendIdsDto) {
+
+        //친구 아이디들 가져오기
+        List<String> memberIds = friendIdsDto.getMemberIds();
+
+        //채팅방 존재 확인
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_ROOM_ID));
+
+        //개인 채팅방인지 확인
+        if (chatRoom.getType().equals(ChatRoomType.DM)) {
+            throw new IllegalArgumentException("개인 채팅방은 친구추가를 할 수 없습니다.");
+        }
+
+        //멤버인지 확인하고 유저 객체로 만듦
+        List<User> members = memberIds.stream()
+            //이미 채팅방 멤버면 필터링
+            .filter(memberId -> !chatRoomMemberRepository.existsByChatRoomIdAndUserUserId(roomId, memberId))
+                .map(memberId -> userRepository.findByUserId(memberId)
+                    .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER)))
+                .toList();
+
+        //새로운 멤버 추가
+        members.forEach(member -> {
+            chatRoomMemberRepository.save(ChatRoomMemberConverter.createChatRoomMember(chatRoom, member));
+        });
     }
 
     //채팅방 나가기

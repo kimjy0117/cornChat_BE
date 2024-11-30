@@ -17,6 +17,9 @@ public class ChatRoomMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    //멤버별로 채팅방 제목 갖게함
+    private String chatRoomTitle;
 
     @ManyToOne
     @JoinColumn(name = "chat_room_id")

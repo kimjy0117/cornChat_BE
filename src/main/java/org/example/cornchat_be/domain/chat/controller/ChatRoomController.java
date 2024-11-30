@@ -60,6 +60,13 @@ public class ChatRoomController implements ChatRoomControllerDocs {
         return ResponseEntity.ok(SuccessStatus._ADD_FRIEND_CHATROOM_SUCCESS.convertSuccessDto());
     }
 
+    //채팅방 다중 초대
+    @PostMapping("/addMembers/{roomId}")
+    public ResponseEntity<?> addMembersToChatRoom(@PathVariable Long roomId, @RequestBody RequestDto.FriendIdsDto friendIdsDto){
+        chatRoomService.addMembersToChatRoom(roomId, friendIdsDto);
+        return ResponseEntity.ok(SuccessStatus._ADD_FRIEND_CHATROOM_SUCCESS.convertSuccessDto());
+    }
+
     //채팅방 나가기
     @DeleteMapping("/{roomId}")
     public ResponseEntity<?> leaveChatRoom(@PathVariable Long roomId){

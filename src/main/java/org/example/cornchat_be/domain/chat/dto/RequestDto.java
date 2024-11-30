@@ -28,4 +28,9 @@ public class RequestDto {
     public static class FriendIdDto{
         private String friendId;
     }
+
+    @Getter
+    public static class FriendIdsDto{
+        private List<String> memberIds;
+    }
 }

@@ -35,11 +35,17 @@ public class ChatRoomConverter {
                 .build();
     }
 
-    public static ResponseDto.ChatRoomListResponseDto convertToChatRoomListDto(ChatRoom chatRoom, Message message){
+    public static ResponseDto.ChatRoomListResponseDto convertToChatRoomListDto(ChatRoom chatRoom, String chatRoomTitle, Message message){
         LocalDateTime latestAt = LocalDateTime.MIN;
 
+        //사용자가 지정한 채팅방 이름이 없으면, 기존 채팅방 이름 저장
+        String title = chatRoom.getTitle();
+        if( chatRoomTitle != null && !chatRoomTitle.isBlank()){
+            title = chatRoomTitle;
+        }
+
         //만약 마지막 메시지가 없으면 채팅방이 생성된 시간을 넣음
-        if(message.getSenderId().isEmpty()){
+        if(message.getSenderId().isBlank()){
             latestAt = chatRoom.getCreateAt();
         } else if (message.getSendAt() != null){
             // message.getSendAt()이 String 타입이므로, 이를 LocalDateTime으로 변환
@@ -48,7 +54,7 @@ public class ChatRoomConverter {
 
         return ResponseDto.ChatRoomListResponseDto.builder()
                 .id(chatRoom.getId())
-                .title(chatRoom.getTitle())
+                .title(title)
                 .members(chatRoom.getMembers().stream()
                     .map(member -> convertToChatRoomMemberInfoDto(member.getUser()))
                     .collect(Collectors.toList()))
