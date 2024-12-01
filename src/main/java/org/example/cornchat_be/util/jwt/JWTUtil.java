@@ -27,6 +27,10 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
     }
 
+    public String getUserId(String token){
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userId", String.class);
+    }
+
     public String getRole(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
@@ -41,10 +45,11 @@ public class JWTUtil {
     }
 
     //email과 role과 소멸시간을 받아서 jwt를 생성한다.
-    public String createJwt(String category, String email, String role, Long expiredMs) {
+    public String createJwt(String category, String email, String userId, String role, Long expiredMs) {
         return Jwts.builder()
                 .claim("category", category)
                 .claim("email", email)
+                .claim("userId", userId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))

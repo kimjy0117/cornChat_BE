@@ -17,6 +17,7 @@ public enum ErrorStatus {
 
     //토큰 에러
     _EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "EXPIREDTOKEN401", "액세스 토큰이 만료되었습니다."),
+    _IS_NOT_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "EXPIREDTOKEN401", "액세스 토큰이 아닙니다."),
 
     // 사용자 정보
     _ALREADY_EXIST_EMAIL(HttpStatus.CONFLICT, "EXISTEMAIL409", "이미 사용중인 이메일입니다."),
