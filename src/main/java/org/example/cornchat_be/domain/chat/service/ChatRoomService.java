@@ -347,6 +347,25 @@ public class ChatRoomService {
             chatRoomRepository.delete(chatRoom);
         }
     }
+
+    //채팅방에 참여하는 멤버들의 아이디 리스트 반환
+    public List<String> getMembers(Long roomId) {
+        return chatRoomRepository.findMemberIdsByRoomId(roomId);
+    }
+//    public List<String> getMembers(Long roomId){
+////        //현재 접속한 유저 정보 가져옴
+////        User user = securityUtil.getCurrentUser();
+//
+//        //채팅방 정보 조회
+//        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+//                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_ROOM_ID));
+//
+//        return chatRoom.getMembers().stream()
+////                //현재 접속한 유저와 일치하지 않는 멤버만 수집
+////                .filter(member -> !member.getUser().getUserId().equals(user.getUserId()))
+//                .map(member -> member.getUser().getUserId())
+//                .toList();
+//    }
 }
 
 

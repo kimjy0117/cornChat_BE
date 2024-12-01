@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import org.example.cornchat_be.apiPayload.code.status.SuccessStatus;
 import org.example.cornchat_be.domain.chat.dto.RequestDto;
 import org.example.cornchat_be.domain.chat.dto.ResponseDto;
+import org.example.cornchat_be.domain.chat.entity.ChatRoomMember;
 import org.example.cornchat_be.domain.chat.entity.Message;
+import org.example.cornchat_be.domain.chat.service.ChatRoomService;
 import org.example.cornchat_be.domain.chat.service.ChatService;
 import org.example.cornchat_be.domain.chat.service.MessageService;
 import org.example.cornchat_be.domain.user.entity.User;
@@ -27,6 +29,7 @@ import java.util.List;
 public class ChatController {
     private final ChatService chatService;
     private final MessageService messageService;
+    private final ChatRoomService chatRoomService;
     private final SimpMessagingTemplate simpMessagingTemplate; //알림 전송용
 
     @MessageMapping("/chat/{roomId}")  // 클라이언트가 보내는 메시지
@@ -38,6 +41,9 @@ public class ChatController {
         //메시지를 저장 후 dto반환
         ResponseDto.ResponseMessageDto response = chatService.saveMessage(requestMessageDto);
 
+
+        //모든 구독자에게 알림 전송
+
         //알림 메시지 생성
         ResponseDto.NotificationMessageDto notificationMessageDto = ResponseDto.NotificationMessageDto.builder()
                 .roomId(roomId)
@@ -47,8 +53,13 @@ public class ChatController {
                 .messageType(response.getMessageType())
                 .build();
 
-        //모든 구독자에게 알림 전송
-        simpMessagingTemplate.convertAndSend("/topic/notifications", notificationMessageDto);
+        //채팅방 멤버 아이디 조회
+        List<String> memberIds = chatRoomService.getMembers(roomId);
+
+        //각 멤버에게 알림 전송
+        for (String memberId : memberIds){
+            simpMessagingTemplate.convertAndSend(String.format("/sub/notifications/%s", memberId), notificationMessageDto);
+        }
 
         return ResponseEntity.status(SuccessStatus._SAVE_CHAT_MESSAGE_SUCCESS.getHttpStatus())
                 .body(SuccessStatus._SAVE_CHAT_MESSAGE_SUCCESS.convertSuccessDto(response));

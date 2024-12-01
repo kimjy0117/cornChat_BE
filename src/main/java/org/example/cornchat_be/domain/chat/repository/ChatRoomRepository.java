@@ -24,4 +24,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             "GROUP BY cr " +
             "HAVING COUNT(DISTINCT crm.user) = 2")
     Optional<ChatRoom> findDmChatRoomsWithUsers(@Param("users") List<User> users);
+
+    //채팅방 멤버의 아이디를 조회
+    @Query("SELECT m.user.userId FROM ChatRoom c JOIN c.members m WHERE c.id = :roomId")
+    List<String> findMemberIdsByRoomId(@Param("roomId") Long roomId);
 }
