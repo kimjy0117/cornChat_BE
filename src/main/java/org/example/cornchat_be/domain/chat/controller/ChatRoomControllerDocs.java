@@ -81,7 +81,7 @@ public interface ChatRoomControllerDocs {
             @ApiResponse(responseCode = "401", description = "유효하지 않은 사용자 인증 정보입니다."),
             @ApiResponse(responseCode = "500", description = "서버에러"),
     })
-    public ResponseEntity<?> setChatRoomTitle(@PathVariable Long roomId, @RequestBody RequestDto.ChatRoomTitleDto chatRoomTitleDto);
+    public ResponseEntity<?> setChatRoomTitle(@PathVariable Long roomId, @RequestParam String chatRoomTitle);
 
 
     //채팅방 나가기

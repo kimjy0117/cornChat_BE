@@ -202,6 +202,11 @@ public class ChatRoomService {
                 userName = member.getUser().getUserName();
                 userId = member.getUser().getUserId();
                 type = FriendType.ME;
+
+                //그룹채팅방이라면 내가 설정한 채팅방 제목으로 변경
+                if(chatRoom.getType().equals(ChatRoomType.GROUP)){
+                    chatRoomTitle = member.getChatRoomTitle();
+                }
             }
             //멤버가 친구인지 확인
             else if (friendRepository.existsByUserAndFriend(user, member.getUser())){
@@ -303,7 +308,7 @@ public class ChatRoomService {
 
     //채팅방 이름 수정
     @Transactional
-    public void setChatRoomTitle(Long roomId, RequestDto.ChatRoomTitleDto chatRoomTitleDto){
+    public void setChatRoomTitle(Long roomId, String chatRoomTitle){
         //채팅방 존재 확인
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_ROOM_ID));
@@ -318,7 +323,7 @@ public class ChatRoomService {
                 .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
 
         //채팅방 이름 수정
-        chatRoomMember.setChatRoomTitle(chatRoomTitleDto.getTitle());
+        chatRoomMember.setChatRoomTitle(chatRoomTitle);
 
         chatRoomMemberRepository.save(chatRoomMember);
     }

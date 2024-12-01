@@ -69,8 +69,8 @@ public class ChatRoomController implements ChatRoomControllerDocs {
 
     //채팅방 이름 수정
     @PatchMapping("/title/{roomId}")
-    public ResponseEntity<?> setChatRoomTitle(@PathVariable Long roomId, @RequestBody RequestDto.ChatRoomTitleDto chatRoomTitleDto){
-        chatRoomService.setChatRoomTitle(roomId, chatRoomTitleDto);
+    public ResponseEntity<?> setChatRoomTitle(@PathVariable Long roomId, @RequestParam String chatRoomTitle){
+        chatRoomService.setChatRoomTitle(roomId, chatRoomTitle);
         return ResponseEntity.status(SuccessStatus._SET_ROOMTITLE_SUCCESS.getHttpStatus())
                 .body((SuccessStatus._SET_ROOMTITLE_SUCCESS.convertSuccessDto()));
     }
