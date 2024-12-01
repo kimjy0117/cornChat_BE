@@ -55,10 +55,12 @@ public class ChatRoomConverter {
         return ResponseDto.ChatRoomListResponseDto.builder()
                 .id(chatRoom.getId())
                 .title(title)
+                .type(chatRoom.getType())
                 .members(chatRoom.getMembers().stream()
                     .map(member -> convertToChatRoomMemberInfoDto(member.getUser()))
                     .collect(Collectors.toList()))
                 .lastMessage(message.getContent())
+                .memberCount(chatRoom.getMembers().size())
                 .latestMessageAt(latestAt)
                 .build();
     }

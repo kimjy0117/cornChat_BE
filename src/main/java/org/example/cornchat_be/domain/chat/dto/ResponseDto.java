@@ -49,8 +49,10 @@ public class ResponseDto {
     public static class ChatRoomListResponseDto{
         private Long id;
         private String title;
+        private ChatRoomType type;
         private List<ChatRoomMemberInfoDto> members;
         private String lastMessage;
+        private int memberCount;
         private LocalDateTime latestMessageAt;
     }
 
