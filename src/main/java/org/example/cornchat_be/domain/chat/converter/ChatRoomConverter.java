@@ -72,10 +72,10 @@ public class ChatRoomConverter {
                 .build();
     }
 
-    public static ResponseDto.ChatRoomDetailDto convertToChatRoomDetailDto (ChatRoom chatRoom, List<ResponseDto.ChatRoomMemberInfoDto> members){
+    public static ResponseDto.ChatRoomDetailDto convertToChatRoomDetailDto (ChatRoom chatRoom, String chatRoomTitle, List<ResponseDto.ChatRoomMemberInfoDto> members){
         return ResponseDto.ChatRoomDetailDto.builder()
                 .id(chatRoom.getId())
-                .title(chatRoom.getTitle())
+                .title(chatRoomTitle)
                 .type(chatRoom.getType())
                 .members(members)
                 .memberCount(members.size())

@@ -187,8 +187,10 @@ public class ChatRoomService {
         //현재 접속한 유저 정보 가져옴
         User user = securityUtil.getCurrentUser();
 
-        List<ResponseDto.ChatRoomMemberInfoDto> members =  new ArrayList<>();
+        //채팅방 제목 초기설정
+        String chatRoomTitle = chatRoom.getTitle();
 
+        List<ResponseDto.ChatRoomMemberInfoDto> members =  new ArrayList<>();
         for(ChatRoomMember member : chatRoom.getMembers()){
             //초기세팅
             String userName = member.getUser().getUserName();
@@ -209,6 +211,18 @@ public class ChatRoomService {
                 userName = friend.getFriendNickname();
                 userId = member.getUser().getUserId();
                 type = FriendType.FRIEND;
+
+                //현재 채팅방이 dm이라면 친구 닉네임을 채팅방 제목으로
+                if(chatRoom.getType().equals(ChatRoomType.DM)){
+                    chatRoomTitle = userName;
+                }
+            }
+            //나와 친구가 아니라면
+            else{
+                //dm채팅방이라면 다른 사용자의 이름을 채팅방 제목으로 함
+                if(chatRoom.getType().equals(ChatRoomType.DM)){
+                    chatRoomTitle = userName;
+                }
             }
 
             ResponseDto.ChatRoomMemberInfoDto chatRoomMemberInfoDto = ResponseDto.ChatRoomMemberInfoDto.builder()
@@ -220,7 +234,7 @@ public class ChatRoomService {
             members.add(chatRoomMemberInfoDto);
         }
 
-        return ChatRoomConverter.convertToChatRoomDetailDto(chatRoom, members);
+        return ChatRoomConverter.convertToChatRoomDetailDto(chatRoom, chatRoomTitle, members);
     }
 
     //채팅방 초대
