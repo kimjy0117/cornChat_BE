@@ -25,6 +25,11 @@ public class RequestDto {
     }
 
     @Getter
+    public  static class ChatRoomTitleDto{
+        private String title;
+    }
+
+    @Getter
     public static class FriendIdDto{
         private String friendId;
     }
@@ -33,4 +38,6 @@ public class RequestDto {
     public static class FriendIdsDto{
         private List<String> memberIds;
     }
+
+
 }

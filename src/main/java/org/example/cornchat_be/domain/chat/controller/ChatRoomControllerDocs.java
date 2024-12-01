@@ -62,6 +62,28 @@ public interface ChatRoomControllerDocs {
     })
     public ResponseEntity<?> addMemberToChatRoom(@PathVariable Long roomId, @RequestBody RequestDto.FriendIdDto friendIdDto);
 
+    //채팅방 다중 초대
+    @Operation(summary = "채팅방 초대하기", description = "친구를 채팅방에 초대합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "친구 초대 성공"),
+            @ApiResponse(responseCode = "400", description = "존재하지 않는 채팅방입니다."),
+            @ApiResponse(responseCode = "400", description = "개인 채팅방은 친구추가를 할 수 없습니다."),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 사용자 인증 정보입니다."),
+            @ApiResponse(responseCode = "500", description = "서버에러"),
+    })
+    public ResponseEntity<?> addMembersToChatRoom(@PathVariable Long roomId, @RequestBody RequestDto.FriendIdsDto friendIdsDto);
+
+    //채팅방 이름 수정
+    @Operation(summary = "채팅방 이름 수정", description = "채팅방 이름을 수정합니다..")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "채팅방 이름 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "존재하지 않는 채팅방입니다."),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 사용자 인증 정보입니다."),
+            @ApiResponse(responseCode = "500", description = "서버에러"),
+    })
+    public ResponseEntity<?> setChatRoomTitle(@PathVariable Long roomId, @RequestBody RequestDto.ChatRoomTitleDto chatRoomTitleDto);
+
+
     //채팅방 나가기
     @Operation(summary = "채팅방 나가기", description = "채팅방을 나갑니다.")
     @ApiResponses(value = {

@@ -287,6 +287,29 @@ public class ChatRoomService {
         });
     }
 
+    //채팅방 이름 수정
+    @Transactional
+    public void setChatRoomTitle(Long roomId, RequestDto.ChatRoomTitleDto chatRoomTitleDto){
+        //채팅방 존재 확인
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_ROOM_ID));
+
+        //현재 접속한 사용자 정보 가져오기
+        User user = securityUtil.getCurrentUser();
+
+        //현재 접속한 사용자의 chatRoomMember정보 가져오기
+        ChatRoomMember chatRoomMember = chatRoom.getMembers().stream()
+                .filter(member -> member.getUser().getUserId().equals(user.getUserId()))
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
+
+        //채팅방 이름 수정
+        chatRoomMember.setChatRoomTitle(chatRoomTitleDto.getTitle());
+
+        chatRoomMemberRepository.save(chatRoomMember);
+    }
+
+
     //채팅방 나가기
     @Transactional
     public void leaveChatRoom(Long roomId) {
