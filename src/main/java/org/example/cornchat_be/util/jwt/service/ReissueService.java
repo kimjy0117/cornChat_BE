@@ -5,6 +5,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.example.cornchat_be.apiPayload.code.status.ErrorStatus;
+import org.example.cornchat_be.apiPayload.exception.CustomException;
+import org.example.cornchat_be.domain.user.entity.User;
+import org.example.cornchat_be.domain.user.repository.UserRepository;
 import org.example.cornchat_be.util.jwt.JWTUtil;
 import org.example.cornchat_be.util.jwt.entity.RefreshEntity;
 import org.example.cornchat_be.util.jwt.repository.RefreshRepository;
@@ -19,6 +23,7 @@ import java.util.Date;
 public class ReissueService {
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final UserRepository userRepository;
 
     public ResponseEntity<?> reissueTokens(HttpServletRequest request, HttpServletResponse response){
         System.out.println("실행이 되긴 하나?");
@@ -69,14 +74,16 @@ public class ReissueService {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
-        System.out.println("리프레시토큰 프린트찍기");
 
         String email = jwtUtil.getEmail(refresh);
         String role = jwtUtil.getRole(refresh);
 
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
+
         //make new JWT
-        String newAccess = jwtUtil.createJwt("access", email, role, 1000*60*30L);
-        String newRefresh = jwtUtil.createJwt("refresh", email, role, 1000*60*60*24L);
+        String newAccess = jwtUtil.createJwt("access", email, user.getUserId(), role, 1000*60*30L);
+        String newRefresh = jwtUtil.createJwt("refresh", email, user.getUserId(), role, 1000*60*60*24L);
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
         refreshRepository.deleteByRefresh(refresh);

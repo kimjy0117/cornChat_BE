@@ -1,6 +1,7 @@
 package org.example.cornchat_be.util.config;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.cornchat_be.domain.user.repository.UserRepository;
 import org.example.cornchat_be.util.jwt.CustomLogoutFilter;
 import org.example.cornchat_be.util.jwt.JWTFilter;
 import org.example.cornchat_be.util.jwt.JWTUtil;
@@ -30,11 +31,13 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final UserRepository userRepository;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository, UserRepository userRepository) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
+        this.userRepository = userRepository;
     }
 
     //AuthenticationManager Bean 등록
@@ -107,7 +110,7 @@ public class SecurityConfig {
 
         //기본인증 필터인 UsernamePasswordAuthenticationFilter를 대신하여 커스텀 로직인 loginFilter로 대체함
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository, userRepository), UsernamePasswordAuthenticationFilter.class);
 
         http
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);

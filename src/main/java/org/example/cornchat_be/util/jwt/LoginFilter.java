@@ -4,6 +4,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.cornchat_be.apiPayload.code.status.ErrorStatus;
+import org.example.cornchat_be.apiPayload.exception.CustomException;
+import org.example.cornchat_be.domain.user.entity.User;
+import org.example.cornchat_be.domain.user.repository.UserRepository;
 import org.example.cornchat_be.util.jwt.entity.RefreshEntity;
 import org.example.cornchat_be.util.jwt.repository.RefreshRepository;
 import org.springframework.http.HttpStatus;
@@ -23,11 +27,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final UserRepository userRepository;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshRepository refreshRepository, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
+        this.userRepository = userRepository;
 
         // 여기에서 로그인 처리할 URL 설정
         setFilterProcessesUrl("/api/login"); // 이 URL로 POST 요청이 들어오면 필터가 동작
@@ -67,10 +73,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new CustomException(ErrorStatus._NOT_EXIST_USER));
+
         //토큰 생성
         //30분
-        String access = jwtUtil.createJwt("access", email, role, 1000*60*30L);
-        String refresh = jwtUtil.createJwt("refresh", email, role, 1000*60*60*24L);
+        String access = jwtUtil.createJwt("access", email, user.getUserId(), role, 1000*60*30L);
+        String refresh = jwtUtil.createJwt("refresh", email, user.getUserId(), role, 1000*60*60*24L);
 
         //Refresh 토큰 저장
         addRefreshEntity(email, refresh, 1000*60*60*24L);
