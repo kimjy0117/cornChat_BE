@@ -3,6 +3,7 @@ package org.example.cornchat_be.domain.chat.entity;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import org.example.cornchat_be.domain.chat.role.MessageType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,7 +20,7 @@ public class Message {
     private Long chatRoomId;
     private String senderId;
     private String content;
-    private String messageType; // TEXT, IMAGE
+    private MessageType messageType; // TEXT, IMAGE
 
     //몽고db는 LocalDateTime형식을 지원하지 않는다.
     private Date sendAt;

@@ -1,6 +1,7 @@
 package org.example.cornchat_be.domain.chat.dto;
 
 import lombok.*;
+import org.example.cornchat_be.domain.chat.role.MessageType;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class RequestDto {
         private String senderId;
         private Long chatRoomId;
         private String content;
-        private String messageType;
+        private MessageType messageType;
     }
 
     @Getter

@@ -3,6 +3,7 @@ package org.example.cornchat_be.domain.chat.dto;
 import lombok.*;
 import org.example.cornchat_be.domain.chat.role.ChatRoomType;
 import org.example.cornchat_be.domain.chat.role.FriendType;
+import org.example.cornchat_be.domain.chat.role.MessageType;
 import org.example.cornchat_be.domain.user.entity.User;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public class ResponseDto {
         private String senderName;
         private Long chatRoomId;
         private String content;
-        private String messageType;
+        private MessageType messageType;
         private LocalDateTime sendAt;
     }
 
@@ -86,6 +87,6 @@ public class ResponseDto {
         private String senderId;
         private String senderName;
         private String content;
-        private String messageType;
+        private MessageType messageType;
     }
 }
