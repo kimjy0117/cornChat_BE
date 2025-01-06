@@ -1,0 +1,55 @@
+name: CI/CD Pipeline
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 리포지토리 체크아웃
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. Docker 로그인
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    # 3. Docker 이미지 빌드 및 푸시
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t your-dockerhub-username/cornchat-be:latest .
+        docker push your-dockerhub-username/cornchat-be:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+    # 1. SSH로 서버 접속하여 컨테이너 재배포
+    - name: Deploy Application
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ubuntu
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          docker pull your-dockerhub-username/cornchat-be:latest
+          docker stop cornchat-container || true
+          docker rm cornchat-container || true
+          docker run -d -p 8080:8080 \
+            -e PROD_MYSQL_HOSTNAME=${{ secrets.PROD_MYSQL_HOSTNAME }} \
+            -e PROD_MYSQL_DB_NAME=${{ secrets.PROD_MYSQL_DB_NAME }} \
+            -e PROD_MYSQL_DB_USERNAME=${{ secrets.PROD_MYSQL_DB_USERNAME }} \
+            -e PROD_MYSQL_DB_PASSWORD=${{ secrets.PROD_MYSQL_DB_PASSWORD }} \
+            -e PROD_MONGO_DB_HOST=${{ secrets.PROD_MONGO_DB_HOST }} \
+            -e PROD_MONGO_DB_NAME=${{ secrets.PROD_MONGO_DB_NAME }} \
+            -e PROD_REDIS_HOST=${{ secrets.PROD_REDIS_HOST }} \
+            -e PROD_REDIS_PORT=${{ secrets.PROD_REDIS_PORT }} \
+            -e PROD_REDIS_PASSWORD=${{ secrets.PROD_REDIS_PASSWORD }} \
+            -e PROD_JWT_SECRET=${{ secrets.PROD_JWT_SECRET }} \
+            -e GOOGLE_EMAIL=${{ secrets.GOOGLE_EMAIL }} \
+            -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
+            --name cornchat-container your-dockerhub-username/cornchat-be:latest
