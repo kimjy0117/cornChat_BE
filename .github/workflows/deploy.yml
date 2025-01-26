@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/user/cornchat  # 서버의 프로젝트 경로
+            cd /home/user  # 서버의 프로젝트 경로
             ./stop.sh || true         # 기존 프로세스 중지 (optional)
             cp build/libs/cornchat.jar ./cornchat.jar # 빌드된 JAR 파일을 현재 디렉토리로 복사
             nohup java -jar cornchat.jar &  # Spring Boot 애플리케이션 실행
