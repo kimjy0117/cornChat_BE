@@ -25,6 +25,9 @@ jobs:
           java-package: jdk
           distribution: 'temurin'
 
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew  # gradlew에 실행 권한 추가
+
       # 3. Gradle빌드
       - name: Build with Gradle
         run: ./gradlew build
