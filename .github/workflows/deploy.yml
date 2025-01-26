@@ -23,7 +23,7 @@ jobs:
         with:
           java-version: 17  # 프로젝트에 사용하는 JDK 버전
           java-package: jdk
-          distribution: 'adoptopenjdk'
+          distribution: 'temurin'
 
       # 3. Gradle빌드
       - name: Build with Gradle
