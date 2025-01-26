@@ -1,55 +1,58 @@
-name: CI/CD Pipeline
+name: Deploy Spring Project
+
 on:
   push:
     branches:
-      - main
+      - main  # main 브랜치에 푸시될 때 실행
+  pull_request:
+    branches:
+      - main  # main 브랜치에 풀리퀘스트될 때 실행
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. 리포지토리 체크아웃
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # 1. 소스코드 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # 2. Docker 로그인
-    - name: Log in to Docker Hub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      # 2. JDK 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17  # 프로젝트에 사용하는 JDK 버전
 
-    # 3. Docker 이미지 빌드 및 푸시
-    - name: Build and Push Docker Image
-      run: |
-        docker build -t your-dockerhub-username/cornchat-be:latest .
-        docker push your-dockerhub-username/cornchat-be:latest
+      # 3. Gradle빌드
+      - name: Build with Gradle
+        run: ./gradlew build
+        env:
+          PROD_MYSQL_HOSTNAME: ${{ secrets.PROD_MYSQL_HOSTNAME }}
+          PROD_MYSQL_DB_NAME: ${{ secrets.PROD_MYSQL_DB_NAME }}
+          PROD_MYSQL_DB_USERNAME: ${{ secrets.PROD_MYSQL_DB_USERNAME }}
+          PROD_MYSQL_DB_PASSWORD: ${{ secrets.PROD_MYSQL_DB_PASSWORD }}
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-push
+          PROD_MONGO_DB_HOST: ${{ secrets.PROD_MONGO_DB_HOST }}
+          PROD_MONGO_DB_PASSWORD: ${{ secrets.PROD_MONGO_DB_PASSWORD}}
+          PROD_MONGO_DB_NAME: ${{ secrets.PROD_MONGO_DB_NAME }}
 
-    steps:
-    # 1. SSH로 서버 접속하여 컨테이너 재배포
-    - name: Deploy Application
-      uses: appleboy/ssh-action@v0.1.6
-      with:
-        host: ${{ secrets.SERVER_IP }}
-        username: ubuntu
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          docker pull your-dockerhub-username/cornchat-be:latest
-          docker stop cornchat-container || true
-          docker rm cornchat-container || true
-          docker run -d -p 8080:8080 \
-            -e PROD_MYSQL_HOSTNAME=${{ secrets.PROD_MYSQL_HOSTNAME }} \
-            -e PROD_MYSQL_DB_NAME=${{ secrets.PROD_MYSQL_DB_NAME }} \
-            -e PROD_MYSQL_DB_USERNAME=${{ secrets.PROD_MYSQL_DB_USERNAME }} \
-            -e PROD_MYSQL_DB_PASSWORD=${{ secrets.PROD_MYSQL_DB_PASSWORD }} \
-            -e PROD_MONGO_DB_HOST=${{ secrets.PROD_MONGO_DB_HOST }} \
-            -e PROD_MONGO_DB_NAME=${{ secrets.PROD_MONGO_DB_NAME }} \
-            -e PROD_REDIS_HOST=${{ secrets.PROD_REDIS_HOST }} \
-            -e PROD_REDIS_PORT=${{ secrets.PROD_REDIS_PORT }} \
-            -e PROD_REDIS_PASSWORD=${{ secrets.PROD_REDIS_PASSWORD }} \
-            -e PROD_JWT_SECRET=${{ secrets.PROD_JWT_SECRET }} \
-            -e GOOGLE_EMAIL=${{ secrets.GOOGLE_EMAIL }} \
-            -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
-            --name cornchat-container your-dockerhub-username/cornchat-be:latest
+          PROD_REDIS_HOST: ${{ secrets.PROD_REDIS_HOST }}
+          PROD_REDIS_PORT: ${{ secrets.PROD_REDIS_PORT }}
+          PROD_REDIS_PASSWORD: ${{ secrets.PROD_REDIS_PASSWORD }}
+
+          PROD_JWT_SECRET: ${{ secrets.PROD_JWT_SECRET }}
+
+          GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+
+      # 4. 서버에 배포
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/user/cornchat  # 서버의 프로젝트 경로
+            ./stop.sh || true         # 기존 프로세스 중지 (optional)
+            cp build/libs/cornchat.jar ./cornchat.jar # 빌드된 JAR 파일을 현재 디렉토리로 복사
+            nohup java -jar cornchat.jar &  # Spring Boot 애플리케이션 실행
