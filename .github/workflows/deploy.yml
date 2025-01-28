@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          time: 60s # 연결 타임아웃을 60초로 설정
+          timeout: 60s # 연결 타임아웃을 60초로 설정
           script: |
             cd /home/user
             ./stop.sh || true
