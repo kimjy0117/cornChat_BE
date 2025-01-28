@@ -14,8 +14,8 @@ jobs:
 
     steps:
       # 핑테스트
-      - name: Ping the server
-        run: ping -c 4 ${{ secrets.SERVER_HOST }}
+#      - name: Ping the server
+#        run: ping -c 4 ${{ secrets.SERVER_HOST }}
 
       #port reachability 테스트
       - name: Check SSH port
