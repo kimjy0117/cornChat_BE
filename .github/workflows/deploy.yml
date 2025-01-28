@@ -18,8 +18,8 @@ jobs:
 #        run: ping -c 4 ${{ secrets.SERVER_HOST }}
 
       #port reachability 테스트
-      - name: Check SSH port
-        run: nc -zv ${{ secrets.SERVER_HOST }} ${{ secrets.SERVER_PORT }}
+#      - name: Check SSH port
+#        run: nc -zv ${{ secrets.SERVER_HOST }} ${{ secrets.SERVER_PORT }}
 
       #ssh 연결 테스트
       - name: Test SSH connection
