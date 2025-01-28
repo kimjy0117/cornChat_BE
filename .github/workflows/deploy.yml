@@ -21,6 +21,13 @@ jobs:
 #      - name: Check SSH port
 #        run: nc -zv ${{ secrets.SERVER_HOST }} ${{ secrets.SERVER_PORT }}
 
+      #ssh키 가져오기
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
       #ssh 연결 테스트
       - name: Test SSH connection
         run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} -p ${{ secrets.SERVER_PORT }} "echo 'SSH connection successful'"
