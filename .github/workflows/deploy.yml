@@ -13,6 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 핑테스트
+      - name: Ping the server
+        run: ping -c 4 ${{ secrets.SERVER_HOST }}
+
+      #port reachability 테스트
+      - name: Check SSH port
+        run: nc -zv ${{ secrets.SERVER_HOST }} ${{ secrets.SERVER_PORT }}
+
+      #ssh 연결 테스트
+      - name: Test SSH connection
+        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} -p ${{ secrets.SERVER_PORT }} "echo 'SSH connection successful'"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+
       # 1. 소스코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
