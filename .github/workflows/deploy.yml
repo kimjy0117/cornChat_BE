@@ -89,6 +89,8 @@ jobs:
             if [ ! -z "$PID" ]; then
               echo "Stopping existing process: $PID"
               kill -9 $PID
+            else
+              echo "No running process found for cornchat.jar"
             fi
            
             # 최신 JAR 파일 찾기 및 실행
