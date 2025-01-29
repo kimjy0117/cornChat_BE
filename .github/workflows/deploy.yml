@@ -93,7 +93,7 @@ jobs:
             fi
             
             # 최신 JAR 파일 찾기 및 실행
-            JAR_FILE=$(ls -t build/libs/*.jar | head -n 1)
+            JAR_FILE=$(ls -t build/libs/cornchat.jar | head -n 1)
             echo "Deploying $JAR_FILE"
             mv $JAR_FILE cornchat.jar
            
