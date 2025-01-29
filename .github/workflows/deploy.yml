@@ -49,6 +49,11 @@ jobs:
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
 
       # 5️⃣ EC2 서버에 JAR 파일 업로드
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
       - name: Upload JAR to EC2
         uses: appleboy/scp-action@master
         with:
@@ -70,21 +75,18 @@ jobs:
           timeout: 120s
           script: |
             cd /home/ubuntu
-
+           
             # 기존 프로세스 종료 (실행 중인 Java 프로세스 찾기 후 종료)
             PID=$(pgrep -f 'cornchat.jar')
             if [ ! -z "$PID" ]; then
               echo "Stopping existing process: $PID"
               kill -9 $PID
             fi
-            
-            # JAR 파일 이름을 자동으로 설정 (가장 최신 빌드된 파일 선택)
+           
+            # 최신 JAR 파일 찾기 및 실행
             JAR_FILE=$(ls -t build/libs/*.jar | head -n 1)
             echo "Deploying $JAR_FILE"
-
-            # 기존 JAR 파일 백업 및 새로운 JAR 배포
             mv $JAR_FILE cornchat.jar
-
-            # 환경 변수 설정 및 실행
+           
             export SPRING_PROFILES_ACTIVE=prod
             nohup java -jar cornchat.jar > app.log 2>&1 &
