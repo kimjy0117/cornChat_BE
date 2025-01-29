@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      #ssh 연결 테스트
+      - name: Test SSH connection
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.SERVER_HOST }} "echo 'SSH connection successful'"
+      
+
       # 1️⃣ 저장소 코드 가져오기
       - name: Checkout code
         uses: actions/checkout@v3
@@ -47,6 +53,14 @@ jobs:
 
           GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+
+      # ssh키 set up
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa  # SSH Private Key를 secrets에서 가져옴
+          chmod 600 ~/.ssh/id_rsa  # 파일 권한 설정
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts  # 서버 호스트키 추가
 
       # 4. EC2 서버에 JAR 파일 업로드
       - name: Upload JAR to EC2
