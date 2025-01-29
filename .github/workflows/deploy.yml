@@ -48,47 +48,19 @@ jobs:
           GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
 
-      # 5️⃣ EC2 접속을 위한 SSH 키 설정
-      - name: Set up SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-
-      # 6️⃣ EC2에 JAR 파일 업로드
-      - name: Upload JAR to EC2
-        run: |
-          scp -i ~/.ssh/id_rsa build/libs/cornchat.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/ubuntu/spring-app/cornchat.jar
-
-      # 7️⃣ EC2에서 애플리케이션 실행
-      - name: Deploy to EC2
-        run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            cd /home/ubuntu/spring-app
-          
-            # 기존 실행 중인 Spring Boot 종료
-            pkill -f 'java.*cornchat.jar' || true
-
-            # JAR 파일 실행 (백그라운드 실행)
-            nohup java -jar cornchat.jar > app.log 2>&1 &  
-          EOF
-
-
-
       # 4. 서버에 배포
-#      - name: Deploy to Server
-#        uses: appleboy/ssh-action@v0.1.6
-#        with:
-#          host: ${{ secrets.SERVER_HOST }}
-#          username: ${{ secrets.SERVER_USER }}
-##          password: ${{ secrets.SERVER_PASSWORD }}
-#          key: ${{ secrets.SSH_PRIVATE_KEY }}
-#          port: ${{ secrets.SERVER_PORT }}
-#          timeout: 120s # 연결 타임아웃을 60초로 설정
-#          script: |
-#            cd /home/user
-#            ./stop.sh || true
-#            cp build/libs/cornchat.jar ./cornchat.jar
-#            nohup java -jar cornchat.jar &
-#          debug: true # 디버그 활성화
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+#          password: ${{ secrets.SERVER_PASSWORD }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          timeout: 120s # 연결 타임아웃을 60초로 설정
+          script: |
+            cd /home/user
+            ./stop.sh || true
+            cp build/libs/cornchat.jar ./cornchat.jar
+            nohup java -jar cornchat.jar &
+          debug: true # 디버그 활성화
