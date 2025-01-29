@@ -48,18 +48,36 @@ jobs:
           GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
 
+      # 4. EC2 서버에 JAR 파일 업로드
+      - name: Upload JAR to EC2
+        run: |
+          scp -i ~/.ssh/id_rsa build/libs/cornchat.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/ubuntu/spring-app/
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+
+      # 5. EC2 서버에서 Spring Boot 애플리케이션 실행
+      - name: Run Spring Boot on EC2
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            cd /home/ubuntu/spring-app
+            fuser -k 8080/tcp || true  # 기존 프로세스 종료 (Spring Boot 실행 중이라면)
+            nohup java -jar cornchat.jar > app.log 2>&1 &
+          EOF
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+
       # 4. 서버에 배포
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          timeout: 120s # 연결 타임아웃을 60초로 설정
-          script: |
-            cd /home/user
-            ./stop.sh || true
-            cp build/libs/cornchat.jar ./cornchat.jar
-            nohup java -jar cornchat.jar &
-          debug: true # 디버그 활성화
+#      - name: Deploy to Server
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SERVER_HOST }}
+#          username: ${{ secrets.SERVER_USER }}
+#          key: ${{ secrets.EC2_SSH_KEY }}
+#          port: ${{ secrets.SERVER_PORT }}
+#          timeout: 120s # 연결 타임아웃을 60초로 설정
+#          script: |
+#            cd /home/user
+#            ./stop.sh || true
+#            cp build/libs/cornchat.jar ./cornchat.jar
+#            nohup java -jar cornchat.jar &
+#          debug: true # 디버그 활성화
