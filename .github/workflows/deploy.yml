@@ -51,6 +51,7 @@ jobs:
       # 5️⃣ EC2 서버에 JAR 파일 업로드
       - name: Setup SSH Key
         run: |
+          mkdir -p ~/.ssh  # .ssh 디렉토리 생성
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
