@@ -86,12 +86,13 @@ jobs:
            
             # 기존 프로세스 종료 (실행 중인 Java 프로세스 찾기 후 종료)
             PID=$(pgrep -f 'cornchat.jar')
-            if [ ! -z "$PID" ]; then
-              echo "Stopping existing process: $PID"
-              kill -9 $PID
-            else
+            echo "Found PID: $PID"  # PID 출력
+              if [ -z "$PID" ]; then
               echo "No running process found for cornchat.jar"
-            fi
+              else
+            echo "Stopping existing process: $PID"
+              sudo kill -9 $PID || echo "Failed to kill process $PID"
+              fi
            
             # 최신 JAR 파일 찾기 및 실행
             JAR_FILE=$(ls -t build/libs/*.jar | head -n 1)
