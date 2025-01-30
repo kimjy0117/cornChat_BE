@@ -9,6 +9,9 @@ version = '0.0.1-SNAPSHOT'
 
 bootJar {
 	archiveFileName = 'cornchat.jar'
+    manifest {
+        attributes 'Main-Class': 'org.example.cornchat_be.CornChatBeApplication'
+    }
 }
 
 java {
