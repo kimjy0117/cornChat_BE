@@ -26,6 +26,29 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      # env 파일 생성
+      - name: Create .env file
+        run: |
+          echo "PROD_MYSQL_HOST=${{ secrets.PROD_MYSQL_HOST }}" >> .env
+          echo "PROD_MYSQL_DB_NAME=${{ secrets.PROD_MYSQL_DB_NAME }}" >> .env
+          echo "PROD_MYSQL_DB_USERNAME=${{ secrets.PROD_MYSQL_DB_USERNAME }}" >> .env
+          echo "PROD_MYSQL_DB_PASSWORD=${{ secrets.PROD_MYSQL_DB_PASSWORD }}" >> .env
+          
+          echo "PROD_MONGO_DB_USER=${{ secrets.PROD_MONGO_DB_USER }}" >> .env
+          echo "PROD_MONGO_DB_PASSWORD=${{ secrets.PROD_MONGO_DB_PASSWORD }}" >> .env
+          echo "PROD_MONGO_DB_HOST=${{ secrets.PROD_MONGO_DB_HOST }}" >> .env
+          echo "PROD_MONGO_DB_NAME=${{ secrets.PROD_MONGO_DB_NAME }}" >> .env
+          
+          echo "PROD_REDIS_HOST=${{ secrets.PROD_REDIS_HOST }}" >> .env
+          echo "PROD_REDIS_PORT=${{ secrets.PROD_REDIS_PORT }}" >> .env
+          echo "PROD_REDIS_PASSWORD=${{ secrets.PROD_REDIS_PASSWORD }}" >> .env
+          
+          echo "PROD_JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}" >> .env
+          
+          echo "GOOGLE_EMAIL=${{ secrets.GOOGLE_EMAIL }}" >> .env
+          echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> .env
+
+
       # 4️⃣ Gradle 빌드 (JAR 생성)
       - name: Build with Gradle
         run: ./gradlew clean build
@@ -48,25 +71,12 @@ jobs:
           GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
 
-#      # 5️⃣ EC2 서버에 JAR 파일 업로드
-#      - name: Setup SSH Key
-#        run: |
-#          mkdir -p ~/.ssh  # .ssh 디렉토리 생성
-#          echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > ~/.ssh/id_rsa
-#          chmod 600 ~/.ssh/id_rsa
-
-      # ssh key 디버그용
-#      - name: Debug SSH Key
-#        run: |
-#          cat ~/.ssh/id_rsa  # SSH 키 파일 내용 출력 (디버그용)
-
       - name: Upload JAR to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-#          key: ~/.ssh/id_rsa
           port: ${{ secrets.SERVER_PORT }}
           source: "build/libs/*.jar"
           target: "/home/ubuntu/"
@@ -78,7 +88,6 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-#          key: ~/.ssh/id_rsa
           port: ${{ secrets.SERVER_PORT }}
           timeout: 120s
           script: |
