@@ -89,7 +89,7 @@ jobs:
               echo "No running process found for cornchat.jar"
             else
               echo "Stopping existing process: $PID"
-              #sudo kill -9 $PID || echo "Failed to kill process $PID"
+              #git checkisudo kill -9 $PID || echo "Failed to kill process $PID"
             fi
             
             # 최신 JAR 파일 찾기 및 실행
