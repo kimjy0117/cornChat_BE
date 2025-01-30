@@ -49,10 +49,6 @@ jobs:
           echo "GOOGLE_EMAIL=${{ secrets.GOOGLE_EMAIL }}" >> $WORKSPACE/.env
           echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $WORKSPACE/.env
 
-      # env file 생성되었는지 확인
-      - name: Verify .env file
-        run: cat .env
-
       # 4️⃣ Gradle 빌드 (JAR 생성)
       - name: Build with Gradle
         run: ./gradlew clean build
@@ -99,11 +95,16 @@ jobs:
 
             # 기존 프로세스 종료
             PID=$(pgrep -f 'cornchat.jar')
-            [ -n "$PID" ] && kill -9 $PID
+            if [ -z "$PID" ]; then
+              echo "No running process found for cornchat.jar"
+            else
+              echo "Stopping existing process: $PID"
+              #git checkisudo kill -9 $PID || echo "Failed to kill process $PID"
+            fi
       
             # 최신 JAR 파일 찾기 및 실행
             JAR_FILE=$(ls -t /home/ubuntu/app/*.jar | head -n 1)
-            mv $JAR_FILE cornchat.jar
+            mv $JAR_FILE cornchat.jar12
       
             # 환경 변수 적용
             export $(grep -v '^#' /home/ubuntu/app/.env | xargs)
