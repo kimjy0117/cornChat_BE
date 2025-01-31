@@ -21,7 +21,9 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -64,13 +66,15 @@ public class SecurityConfig {
                             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                                 CorsConfiguration configuration = new CorsConfiguration();
 
-                                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173")); //5173번 포트 허용
-                                configuration.setAllowedOrigins(Collections.singletonList("http://3.36.151.72:5173")); //5173번 포트 허용
-                                configuration.setAllowedOrigins(Collections.singletonList("https://cornchat.vercel.app:5173")); //5173번 포트 허용
-                                configuration.setAllowedOrigins(Collections.singletonList("https://www.cornchat.site:5173")); //5173번 포트 허용
-                                configuration.setAllowedOrigins(Collections.singletonList("https://www.cornchat.site")); //5173번 포트 허용
-                                configuration.setAllowedOrigins(Collections.singletonList("http://www.cornchat.site:5173")); //5173번 포트 허용
-                                configuration.setAllowedOrigins(Collections.singletonList("http://www.cornchat.site")); //5173번 포트 허용
+                                configuration.setAllowedOriginPatterns(List.of( // ✅ 여러 개의 도메인 패턴 허용
+                                        "http://localhost:5173",
+                                        "http://3.36.151.72:5173",
+                                        "https://cornchat.vercel.app:5173",
+                                        "https://www.cornchat.site:5173",
+                                        "https://www.cornchat.site",
+                                        "http://www.cornchat.site:5173",
+                                        "http://www.cornchat.site"
+                                ));
 
                                 configuration.setAllowedMethods(Collections.singletonList("*"));
                                 configuration.setAllowCredentials(true);
