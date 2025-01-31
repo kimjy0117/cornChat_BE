@@ -66,6 +66,12 @@ public class SecurityConfig {
 
                                 configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173")); //5173번 포트 허용
                                 configuration.setAllowedOrigins(Collections.singletonList("http://3.36.151.72:5173")); //5173번 포트 허용
+                                configuration.setAllowedOrigins(Collections.singletonList("https://cornchat.vercel.app:5173")); //5173번 포트 허용
+                                configuration.setAllowedOrigins(Collections.singletonList("https://www.cornchat.site:5173")); //5173번 포트 허용
+                                configuration.setAllowedOrigins(Collections.singletonList("https://www.cornchat.site")); //5173번 포트 허용
+                                configuration.setAllowedOrigins(Collections.singletonList("http://www.cornchat.site:5173")); //5173번 포트 허용
+                                configuration.setAllowedOrigins(Collections.singletonList("http://www.cornchat.site")); //5173번 포트 허용
+
                                 configuration.setAllowedMethods(Collections.singletonList("*"));
                                 configuration.setAllowCredentials(true);
                                 configuration.setAllowedHeaders(Collections.singletonList("*"));
