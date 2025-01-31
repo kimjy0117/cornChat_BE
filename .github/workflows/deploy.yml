@@ -94,9 +94,9 @@ jobs:
             cd /home/ubuntu/app
 
             # 기존 프로세스 종료
-            PID=$(pgrep -f 'cornchat.jar')
+            PID=$(pgrep -f 'cornChat_BE-0.0.1-SNAPSHOT.jar')
             if [ -z "$PID" ]; then
-              echo "No running process found for cornchat.jar"
+              echo "No running process found for cornChat_BE-0.0.1-SNAPSHOT.jar"
             else
               echo "Stopping existing process: $PID"
               #git checkisudo kill -9 $PID || echo "Failed to kill process $PID"
@@ -104,10 +104,10 @@ jobs:
       
             # 최신 JAR 파일 찾기 및 실행
             JAR_FILE=$(ls -t build/libs/*.jar | head -n 1)
-            mv $JAR_FILE cornchat.jar
+            mv $JAR_FILE cornChat_BE-0.0.1-SNAPSHOT.jar
       
             # 환경 변수 적용
             export $(grep -v '^#' /home/ubuntu/app/.env | xargs)
             export SPRING_PROFILES_ACTIVE=prod
       
-            nohup java -jar cornchat.jar > /home/ubuntu/app.log 2>&1 &
+            nohup java -jar cornChat_BE-0.0.1-SNAPSHOT.jar > /home/ubuntu/app.log 2>&1 &

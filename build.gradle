@@ -7,13 +7,6 @@ plugins {
 group = 'org.example'
 version = '0.0.1-SNAPSHOT'
 
-bootJar {
-	archiveFileName = 'cornchat.jar'
-    manifest {
-        attributes 'Main-Class': 'org.example.cornchat_be.CornChatBeApplication'
-    }
-}
-
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
